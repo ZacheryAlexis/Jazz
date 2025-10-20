@@ -1,7 +1,7 @@
 @echo off
 setlocal
 
-echo === Setting up Ally ===
+echo === Setting up Jazz ===
 
 :: Step 1: Create virtual environment
 echo Creating virtual environment...
@@ -18,7 +18,7 @@ pip install -r requirements.txt || (
     exit /b 1
 )
 
-:: Step 3: Create bin\ally.bat
+:: Step 3: Create bin\jazz.bat
 echo Creating launcher script...
 set "CURR_DIR=%CD%"
 if not exist bin mkdir bin
@@ -44,5 +44,5 @@ if errorlevel 1 (
     echo %BIN_DIR% is already in PATH.
 )
 
-echo === Setup complete! You can now run "ally" in a new terminal window ===
+echo === Setup complete! You can now run "jazz" in a new terminal window ===
 pause

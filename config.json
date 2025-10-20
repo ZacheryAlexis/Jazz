@@ -1,25 +1,23 @@
 {
-    "provider": "google",
+    "provider": "ollama",
     "provider_per_model": {
-        "general": null,
-        "code_gen": null,
-        "brainstormer": null,
-        "web_searcher": null
+        "general": "ollama",
+        "code_gen": "ollama",
+        "brainstormer": "ollama",
+        "web_searcher": "ollama"
     },
-
-    "model": "gemini-2.5-flash",
+    "model": "qwen3:8b",
     "models": {
-        "general": null,
-        "code_gen": null,
-        "brainstormer": null,
-        "web_searcher": null
+        "general": "qwen3:8b",
+        "code_gen": "qwen3:8b",
+        "brainstormer": "qwen3:8b",
+        "web_searcher": "qwen3:8b"
     },
-
     "temperatures": {
-        "general": 0,
-        "code_gen": 0,
-        "brainstormer": 0,
-        "web_searcher": 0
+        "general": 0.7,
+        "code_gen": 0.3,
+        "brainstormer": 0.9,
+        "web_searcher": 0.5
     },
     "system_prompts": {
         "general": null,
@@ -27,9 +25,7 @@
         "brainstormer": null,
         "web_searcher": null
     },
-
     "embedding_provider": null,
     "embedding_model": null,
-
     "scraping_method": "simple"
 }

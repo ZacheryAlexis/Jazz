@@ -1,23 +1,19 @@
-# Ally
+# Kazz
 
 <div align="center">
 
 <div align="center">
-    <img src="./assets/ally_cover.jpg" alt="Ally cover" style="width:80%;max-width:100%;height:auto;" />
+    <img src="./assets/jazz_cover.jpg" alt="Ally cover" style="width:80%;max-width:100%;height:auto;" />
 </div>
 
-[![GitHub stars](https://img.shields.io/github/stars/YassWorks/Ally?style=social)](https://github.com/YassWorks/Ally/stargazers)
-[![GitHub forks](https://img.shields.io/github/forks/YassWorks/Ally?style=social)](https://github.com/YassWorks/Ally/network/members)
-[![Docker Image Version](https://img.shields.io/docker/v/yassw0rks/ally)](https://hub.docker.com/r/yassw0rks/ally)
-[![Docker Pulls](https://img.shields.io/docker/pulls/yassw0rks/ally)](https://hub.docker.com/r/yassw0rks/ally)
 
-**Ally** — lightweight, private service assistant for anyone
+**Jazz** — lightweight, private service assistant for anyone
 
 </div>
 
-**Ally** is an AI-powered CLI tool designed to assist with anything from everyday tasks to complex projects efficiently, without leaving the terminal.
+**Jazz** is an AI-powered CLI tool designed to assist with anything from everyday tasks to complex projects efficiently, without leaving the terminal.
 
-Ally was built a fully local agentic system using **[Ollama](https://ollama.com/download)**, but it also works seamlessly with:
+Jazz was built a fully local agentic system using **[Ollama](https://ollama.com/download)**, but it also works seamlessly with:
 
 -   OpenAI
 -   Anthropic
@@ -41,9 +37,9 @@ A general-purpose agent that can:
 
 ### RAG
 
-Ally can take your files, embed them into its knowledge base, and use them to respond to your prompts with a high level of accuracy.
+Jazz can take your files, embed them into its knowledge base, and use them to respond to your prompts with a high level of accuracy.
 
-Currently, Ally's embedding functions can use:
+Currently, Jazz's embedding functions can use:
 
 -   Hugging Face models (locally)
 -   Ollama Embedding models (locally)
@@ -55,7 +51,7 @@ Currently, Ally's embedding functions can use:
 
 1. Setup the `config.json` as shown below with the appropriate embedding settings.
 
-2. Provide the path to the file or folder whose contents should be embedded. As an alternative, you can launch Ally from that directory.
+2. Provide the path to the file or folder whose contents should be embedded. As an alternative, you can launch Jazz from that directory.
 
 3. Use `/embed <path> <collection_name>` or `/embed . <collection_name>` if already at the correct path.
 
@@ -63,7 +59,7 @@ Currently, Ally's embedding functions can use:
 
 5. End the RAG session with `/stop_rag`
 
-**Note** that Ally will not use any external data to answer your prompts during RAG sessions unless explicitly given permission to.
+**Note** that Jazz will not use any external data to answer your prompts during RAG sessions unless explicitly given permission to.
 
 **Additional commands:**
 
@@ -118,7 +114,7 @@ SEARCH_ENGINE_ID=...
 Open a terminal in that directory and type
 
 ```bash
-# Pull the Ally image:
+# Pull the  image:
 docker pull yassw0rks/ally:latest
 
 

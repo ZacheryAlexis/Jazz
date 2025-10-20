@@ -20,7 +20,9 @@ api_keys = {
     "cerebras": os.getenv("CEREBRAS_API_KEY"),
     "openai": os.getenv("OPENAI_API_KEY"),
     "anthropic": os.getenv("ANTHROPIC_API_KEY"),
-    "google": os.getenv("GOOGLE_GEN_AI_API_KEY")
+    "google": os.getenv("GOOGLE_GEN_AI_API_KEY"),
+    "ollama": os.getenv("OLLAMA_API_KEY", "dummy")  
+    
 }
 
 

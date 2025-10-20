@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 
-echo "=== Setting up Ally ==="
+echo "=== Setting up Jazz ==="
 
 # =========================== Step 1: Create virtual environment ===========================
 
@@ -57,4 +57,4 @@ else
 fi
 
 echo "\nAdd this line to your shell config if needed: export PATH=\"$BIN_DIR:\$PATH\""
-echo "=== Setup complete! You can now run 'ally' in a new terminal window ==="
+echo "=== Setup complete! You can now run 'Jazz' in a new terminal window ==="
