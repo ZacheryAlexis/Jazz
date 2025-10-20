@@ -26,7 +26,7 @@ UI_MESSAGES = {
         "error": "Error",
         "help": "Help",
         "tool_executing": "Tool Executing",
-        "assistant": "Assistant",
+        "assistant": "Jazz",
         "continuing_session": "Continuing Session",
         "current_session_id": "Current Session ID",
         "latest_references": "Latest References",
@@ -43,7 +43,7 @@ UI_MESSAGES = {
     },
     # Messages
     "messages": {
-        "goodbye": "Thanks for using Ally!",
+        "goodbye": "Thanks for using Jazz!",
         "history_cleared": "Conversation history cleared",
         "session_interrupted": "Session interrupted by user",
         "recursion_warning": "Agent has been processing for a while.\nContinue or refine your prompt?",
