@@ -47,6 +47,10 @@ def create_base_agent(
     """
     llm = None
 
+    # Default to 'ollama' if provider not specified
+    if provider is None:
+        provider = 'ollama'
+
     match provider.lower():
         case "cerebras":
             from langchain_cerebras import ChatCerebras

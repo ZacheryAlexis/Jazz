@@ -25,6 +25,7 @@ def integrate_web_search(agent: BaseAgent, web_searcher: WebSearcherAgent) -> No
         - Research technical topics, implementation details, or best practices
         - Find current information about tools, frameworks, or approaches
         - Gather multiple perspectives on development solutions
+        - Get specific facts about media, events, people, or storylines
 
         ## PARAMETERS:
             query (str): Query description or specific search terms for web research
@@ -32,11 +33,18 @@ def integrate_web_search(agent: BaseAgent, web_searcher: WebSearcherAgent) -> No
         ## RETURNS:
             str: Comprehensive research results from web search agent
         """
-        return web_searcher.invoke(
-            message=query,
-            recursion_limit=RECURSION_LIMIT,
-            quiet=True,
-        )
+        try:
+            result = web_searcher.invoke(
+                message=query,
+                recursion_limit=RECURSION_LIMIT,
+                quiet=True,
+            )
+            if result:
+                return result
+            else:
+                return f"[Web search attempted but returned no results for: {query}]"
+        except Exception as e:
+            return f"[Web search error: {str(e)}. Query was: {query}]"
 
     enhanced_graph, enhanced_agent = agent.get_agent(
         model_name=agent.model_name,

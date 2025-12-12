@@ -1,4 +1,6 @@
-# Kazz
+# Jazz
+
+> A fork of [Ally](https://github.com/YassWorks/Ally) - Licensed under Apache 2.0
 
 <div align="center">
 
@@ -282,6 +284,14 @@ Linux & MacOS:
 ## License
 
 Apache-2.0
+
+### Attribution
+
+Jazz is a fork of [Ally](https://github.com/YassWorks/Ally) by [YassWorks](https://github.com/YassWorks).
+
+Both projects are licensed under the Apache License 2.0. See [ATTRIBUTION.md](./ATTRIBUTION.md) for full attribution details.
+
+**Important:** This project is **NOT affiliated with MIT** and is maintained independently. See the LICENSE and ATTRIBUTION files for licensing details.
 
 ---
 

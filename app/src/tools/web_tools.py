@@ -41,7 +41,7 @@ def fetch(url: str) -> str:
 
         text = soup.get_text(separator=" ", strip=True)
         text = " ".join(text.split())
-        return text[:10000]
+        return text  # Return FULL PAGE - no character limit
 
     except requests.RequestException as e:
         return f"[ERROR] HTTP error for {url}: {e}"

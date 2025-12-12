@@ -1,0 +1,69 @@
+<!-- Jazz MEAN Stack Frontend - Login Page HTML Template -->
+
+<div class="login-container">
+  <div class="login-box">
+    <div class="logo">
+      <h1>🎷 Jazz</h1>
+      <p class="tagline">AI Assistant Chat Interface</p>
+    </div>
+
+    <div *ngIf="error" class="error-message">
+      {{ error }}
+    </div>
+
+    <form (ngSubmit)="isRegistering ? onRegister() : onLogin()">
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input 
+          type="text" 
+          id="username" 
+          [(ngModel)]="username" 
+          name="username"
+          placeholder="Enter your username"
+          [disabled]="loading"
+        />
+      </div>
+
+      <div class="form-group" *ngIf="isRegistering">
+        <label for="email">Email</label>
+        <input 
+          type="email" 
+          id="email" 
+          [(ngModel)]="email" 
+          name="email"
+          placeholder="Enter your email"
+          [disabled]="loading"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input 
+          type="password" 
+          id="password" 
+          [(ngModel)]="password" 
+          name="password"
+          placeholder="Enter your password"
+          [disabled]="loading"
+        />
+      </div>
+
+      <button 
+        type="submit" 
+        class="btn-submit"
+        [disabled]="loading"
+      >
+        {{ loading ? 'Processing...' : (isRegistering ? 'Create Account' : 'Sign In') }}
+      </button>
+    </form>
+
+    <div class="toggle-mode">
+      <p>
+        {{ isRegistering ? 'Already have an account?' : 'Don\'t have an account?' }}
+        <a (click)="toggleMode()" href="javascript:void(0)">
+          {{ isRegistering ? 'Sign In' : 'Create One' }}
+        </a>
+      </p>
+    </div>
+  </div>
+</div>

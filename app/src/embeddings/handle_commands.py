@@ -28,8 +28,9 @@ def handle_embed_request(*args):
     if directory_path == "." or directory_path == "./":
         directory_path = os.getcwd()
 
-    with default_ui.console.status("Embedding documents..."):
-        db_client.store_documents(directory_path, collection_name)
+    # Note: Not using 'with status()' context because it suppresses debug output and blocks stderr
+    # The store_documents method includes its own status messages
+    db_client.store_documents(directory_path, collection_name)
 
 
 def handle_index_request(*args):
@@ -126,3 +127,101 @@ def handle_purge_command():
         return
     
     db_client.reset_database()
+
+
+def handle_query_command(*args):
+    """Handle the /query command to search embeddings."""
+    db_client = DataBaseClient.get_instance()
+    
+    if db_client is None:
+        default_ui.error(
+            UI_MESSAGES["errors"]["db_not_initialized"]
+        )
+        return
+    
+    if len(args) < 1:
+        default_ui.error(UI_MESSAGES["usage"].get("query", "Usage: /query <search_text>"))
+        return
+    
+    query = " ".join(args)
+    
+    try:
+        results = db_client.get_query_results(query, n_results=5)
+        
+        if not results:
+            default_ui.status_message(
+                title="Search Results",
+                message="No matching documents found.",
+                style="warning",
+            )
+            return
+        
+        # Format and display results
+        output = []
+        for i, (doc, meta) in enumerate(results, 1):
+            file_path = meta.get("file_path", "Unknown")
+            preview = doc[:150] + "..." if len(doc) > 150 else doc
+            output.append(f"\n**Result {i}:** {file_path}\n{preview}")
+        
+        message = "\n".join(output)
+        default_ui.status_message(
+            title="Search Results",
+            message=message,
+            style="success",
+        )
+    except Exception as e:
+        default_ui.error(f"Query failed: {e}")
+
+
+def handle_collections_command(*args):
+    """Handle the /collections command to list collections."""
+    db_client = DataBaseClient.get_instance()
+    
+    if db_client is None:
+        default_ui.error(
+            UI_MESSAGES["errors"]["db_not_initialized"]
+        )
+        return
+    
+    db_client.list_collections()
+
+
+def handle_list_all_docs_command(*args):
+    """Handle the /list_all_docs command to list all unique documents in the knowledge base."""
+    db_client = DataBaseClient.get_instance()
+    
+    if db_client is None:
+        default_ui.error(
+            UI_MESSAGES["errors"]["db_not_initialized"]
+        )
+        return
+    
+    try:
+        import chromadb
+        from pathlib import Path
+        
+        # Get all documents with metadata
+        results = db_client.db_client.get_collection('archive').get(
+            limit=50000,
+            include=['metadatas']
+        )
+        
+        # Extract unique file paths
+        unique_files = set()
+        for meta in results['metadatas']:
+            if meta and 'file_path' in meta:
+                unique_files.add(meta['file_path'])
+        
+        # Format output
+        output = []
+        for i, file_path in enumerate(sorted(unique_files), 1):
+            output.append(f"{i}. {Path(file_path).name}")
+        
+        message = f"Total unique documents: {len(unique_files)}\n\n" + "\n".join(output)
+        default_ui.status_message(
+            title="All Documents in Knowledge Base",
+            message=message,
+            style="success",
+        )
+    except Exception as e:
+        default_ui.error(f"Failed to list documents: {e}")

@@ -1,0 +1,53 @@
+<!-- Jazz MEAN Stack Frontend - Chat Interface HTML Template -->
+
+<div class="chat-container">
+  <div class="chat-header">
+    <div class="header-content">
+      <h1>🎷 Jazz Chat</h1>
+      <p class="user-info">Welcome, {{ username }}</p>
+    </div>
+    <button (click)="logout()" class="btn-logout">Sign Out</button>
+  </div>
+
+  <div class="chat-messages">
+    <div *ngFor="let message of messages" [class.user-message]="message.type === 'user'" [class.assistant-message]="message.type === 'assistant'" class="message">
+      <div class="message-content">
+        <span *ngIf="message.type === 'user'" class="message-label">You</span>
+        <span *ngIf="message.type === 'assistant'" class="message-label">Jazz</span>
+        <p>{{ message.text }}</p>
+      </div>
+    </div>
+
+    <div *ngIf="loading" class="message assistant-message">
+      <div class="message-content">
+        <span class="message-label">Jazz</span>
+        <p class="loading-text">Thinking<span class="dots"><span>.</span><span>.</span><span>.</span></span></p>
+      </div>
+    </div>
+
+    <div *ngIf="messages.length === 0 && !loading" class="empty-state">
+      <p>👋 Start a conversation with Jazz!</p>
+      <p class="hint">Ask me anything - I can help with coding, writing, research, and more.</p>
+    </div>
+  </div>
+
+  <div class="chat-input-area">
+    <form (ngSubmit)="sendMessage()" class="input-form">
+      <input 
+        type="text" 
+        [(ngModel)]="userMessage" 
+        name="userMessage"
+        placeholder="Type your message here..."
+        [disabled]="loading"
+        autofocus
+      />
+      <button 
+        type="submit" 
+        class="btn-send"
+        [disabled]="loading || !userMessage.trim()"
+      >
+        {{ loading ? '⏳' : '📤' }}
+      </button>
+    </form>
+  </div>
+</div>

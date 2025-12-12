@@ -8,6 +8,9 @@ from app.src.embeddings.handle_commands import (
     handle_delete_command,
     handle_purge_command,
     handle_list_command,
+    handle_query_command,
+    handle_collections_command,
+    handle_list_all_docs_command,
 )
 from app.src.core.permissions import permission_manager
 from app.src.core.agent_factory import AgentFactory
@@ -47,41 +50,52 @@ class CLI:
         system_prompts = system_prompts or {}
         provider_per_model = provider_per_model or {}
 
-        match embedding_provider.lower():
+        # Ensure all agent types have valid model names
+        default_model = models.get("general") or "qwen2.5:14b"
+        for agent_type in ["general", "code_gen", "brainstormer", "web_searcher"]:
+            if not models.get(agent_type):
+                models[agent_type] = default_model
 
-            case "ollama":
-                from app.src.embeddings.embedding_functions.ollama_embed import (
-                    OllamaEmbedder,
-                )
+        try:
+            match (embedding_provider or "").lower():
 
-                self.embedding_function = OllamaEmbedder(embedding_model).get_embeddings
-                self.rag_available = True
+                case "ollama":
+                    from app.src.embeddings.embedding_functions.ollama_embed import (
+                        OllamaEmbedder,
+                    )
 
-            case "hf" | "huggingface" | "hugging face" | "hugging_face":
-                from app.src.embeddings.embedding_functions.hf_embed import HFEmbedder
+                    self.embedding_function = OllamaEmbedder(embedding_model).get_embeddings
+                    self.rag_available = True
 
-                self.embedding_function = HFEmbedder(embedding_model).get_embeddings
-                self.rag_available = True
+                case "hf" | "huggingface" | "hugging face" | "hugging_face":
+                    from app.src.embeddings.embedding_functions.hf_embed import HFEmbedder
 
-            case "openai":
-                from app.src.embeddings.embedding_functions.openai_embed import (
-                    OpenAIEmbedder,
-                )
+                    self.embedding_function = HFEmbedder(embedding_model).get_embeddings
+                    self.rag_available = True
 
-                self.embedding_function = OpenAIEmbedder(embedding_model).get_embeddings
-                self.rag_available = True
-            
-            case "nlpcloud" | "nlp cloud" | "nlp_cloud":
-                from app.src.embeddings.embedding_functions.nlp_cloud_embed import (
-                    NLPCloudEmbedder,
-                )
+                case "openai":
+                    from app.src.embeddings.embedding_functions.openai_embed import (
+                        OpenAIEmbedder,
+                    )
 
-                self.embedding_function = NLPCloudEmbedder(embedding_model).get_embeddings
-                self.rag_available = True
+                    self.embedding_function = OpenAIEmbedder(embedding_model).get_embeddings
+                    self.rag_available = True
+                
+                case "nlpcloud" | "nlp cloud" | "nlp_cloud":
+                    from app.src.embeddings.embedding_functions.nlp_cloud_embed import (
+                        NLPCloudEmbedder,
+                    )
 
-            case _:
-                self.embedding_function = None
-                self.rag_available = False
+                    self.embedding_function = NLPCloudEmbedder(embedding_model).get_embeddings
+                    self.rag_available = True
+
+                case _:
+                    self.embedding_function = None
+                    self.rag_available = False
+        except Exception as e:
+            default_ui.warning(f"RAG initialization failed: {e}")
+            self.embedding_function = None
+            self.rag_available = False
         
         match scraping_method.lower():
             case "docling":
@@ -289,6 +303,11 @@ class CLI:
         agent.register_command(
             "/delete", lambda *args: handle_delete_command(*args)
         )  # followed by <collection_name>
+        
+        # Query and collections commands
+        agent.register_command("/query", lambda *args: handle_query_command(*args))
+        agent.register_command("/collections", lambda *args: handle_collections_command())
+        agent.register_command("/list_all_docs", lambda *args: handle_list_all_docs_command())
 
     def _enable_rag(self, agent: BaseAgent):
         """Enable RAG functionality."""

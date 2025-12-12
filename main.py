@@ -1,3 +1,11 @@
+"""
+Jazz - AI-powered CLI assistant
+A fork of Ally (https://github.com/YassWorks/Ally)
+
+Licensed under Apache License 2.0
+See LICENSE and ATTRIBUTION.md for details
+"""
+
 from dotenv import load_dotenv
 load_dotenv()
 

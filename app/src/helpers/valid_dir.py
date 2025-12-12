@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 
 
-WINDOWS_INVALID_CHARS = '<>:"/\\|?*'
+WINDOWS_INVALID_CHARS = '<>"/\\|?*'  # Removed ':' as it's allowed in filenames except at position 1 (drive letter)
 WINDOWS_RESERVED_NAMES = {
     "CON",
     "PRN",
@@ -23,7 +23,7 @@ def validate_dir_name(path: str) -> bool:
     except Exception:
         return False
 
-    for part in p.parts:
+    for i, part in enumerate(p.parts):
 
         if part in (p.anchor, os.sep, os.altsep) or not part:
             continue
@@ -37,8 +37,11 @@ def validate_dir_name(path: str) -> bool:
             if any(c in WINDOWS_INVALID_CHARS for c in part):
                 return False
 
-            if part.endswith(" ") or part.endswith("."):
+            # Colon is only invalid at position 1 (after drive letter)
+            if i > 0 and ":" in part:
                 return False
+
+            # Don't reject trailing spaces/dots on Windows - they're handled by the filesystem
 
         # POSIX-specific checks
         else:

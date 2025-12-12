@@ -19,6 +19,30 @@ ENDPOINT = "https://customsearch.googleapis.com/customsearch/v1"
 TIMEOUT = 10  # seconds
 
 
+def duckduckgo_search(query: str, n: int = 5) -> list[dict[str, str]]:
+    """Search DuckDuckGo and return structured results (fallback if Google unavailable).
+    
+    Args:
+        query: Search query string
+        n: Maximum number of results to return
+        
+    Returns:
+        List of dictionaries with 'title' and 'link' keys
+    """
+    try:
+        from ddgs import DDGS
+        results = []
+        with DDGS() as ddgs:
+            for result in ddgs.text(query, max_results=n):
+                results.append({
+                    "title": result.get("title", ""),
+                    "link": result.get("href", "")
+                })
+        return results
+    except Exception as e:
+        raise ValueError(f"DuckDuckGo search failed: {str(e)}")
+
+
 def google_search(query: str, n: int = 5) -> list[dict[str, str]]:
     """Search Google and return structured results.
 
@@ -76,7 +100,7 @@ def google_search(query: str, n: int = 5) -> list[dict[str, str]]:
 def search_and_scrape(query: str) -> str:
     """
     ## PRIMARY PURPOSE:
-    Perform Google search and extract full text content from top 5 results.
+    Perform web search and extract full text content from top 5 results.
 
     ## WHEN TO USE:
     - Research technical topics, best practices, or implementation approaches
@@ -90,18 +114,31 @@ def search_and_scrape(query: str) -> str:
     ## RETURNS:
         str: Formatted results with titles and full text content from top search results
     """
-    if not SEARCH_AVAILABLE:
-        return "[ERROR] Web search functionality is not available."
-
     try:
-        search_results = google_search(query, 5)
+        # Try Google first if credentials available
+        if SEARCH_AVAILABLE:
+            try:
+                search_results = google_search(query, 5)
+            except Exception as e:
+                # Fallback to DuckDuckGo if Google fails
+                search_results = duckduckgo_search(query, 5)
+        else:
+            # Use DuckDuckGo if Google credentials not available
+            search_results = duckduckgo_search(query, 5)
+        
+        if not search_results:
+            return "[ERROR] No search results found."
+            
         for r in search_results:
-            r["full_text"] = fetch(r["link"])
+            try:
+                r["full_text"] = fetch(r["link"])
+            except Exception:
+                r["full_text"] = "[Unable to fetch content from this link]"
 
-        formatted_results = "This answer is **possibly incomplete**. Consider refining search terms as needed.\n\n"
-        # search_results has "title" and "full_text" keys. Let's structure it nicely for the agent:
+        formatted_results = "Web search results:\n\n"
         for r in search_results:
             formatted_results += f"# Title: \n{r['title']}\n\n"
+            formatted_results += f"# Link: {r['link']}\n\n"
             formatted_results += f"# Content: \n{r['full_text']}\n\n"
 
         return formatted_results

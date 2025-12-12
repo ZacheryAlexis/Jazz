@@ -8,3 +8,76 @@ canvas/
 compose.yml
 
 bin/
+
+# Archive PDFs, EPUBs, MOBI, and AZW3 files - NEVER commit source files
+data/documents/*.pdf
+data/documents/*.epub
+data/documents/*.mobi
+data/documents/*.azw3
+data/documents/*.doc
+data/documents/*.docx
+data/documents/*.txt
+data/documents/raw/
+
+# Keep embeddings database (vectors only, not source material)
+# app/src/embeddings/db/ is safe to commit
+
+# Sensitive files
+*.key
+*.pem
+secrets/
+private/
+
+# ============================================================
+# DEVELOPMENT & DOCUMENTATION FILES (DO NOT COMMIT TO REPO)
+# ============================================================
+# Only README.md should be in the repository
+# All other documentation files are for local reference only
+
+# Project improvement & analysis guides
+IMPROVEMENTS_GUIDE_TLDR.md
+PROJECT_IMPROVEMENT_ROADMAP.md
+NEXT_IMPROVEMENTS_QUICK_START.md
+CURRENT_STATE_AND_HEALTH_CHECK.md
+ANALYSIS_COMPLETE_SUMMARY.md
+DOCUMENT_NAVIGATION_GUIDE.md
+COMPLETE_ISSUE_RESOLUTION_LOG.md
+
+# Previous session documentation (legacy)
+HARDCODING_REMOVED.md
+SEARCH_FALLBACK_FIXES.md
+VALIDATION_REPORT.md
+UBUNTU_VM_DEPLOYMENT_AND_TODOS.md
+TWO_STAGE_RAG_*.md
+TROUBLESHOOTING_SCRIPTS.md
+TODOS_*.md
+STATUS_COMPLETE.md
+STAGE1_OUTPUT_FIX.md
+SOLUTION_SUMMARY.md
+RESEARCH_LOGIC_ENHANCEMENT.md
+REORGANIZATION_COMPLETE.md
+README_*.md
+FIX_SUMMARY.md
+FINAL_*.md
+IMPLEMENTATION_*.md
+IMPLEMENTATION_*.txt
+DOCUMENTATION_INDEX.md
+DETAILED_PROMPT_CHANGES.md
+COMPLETION_*.md
+COMPREHENSIVE_AUDIT_COMPLETE.md
+CRITICAL_FIXES_*.md
+CHATGPT_*.md
+CHANGES_SMART_EXTRACTION.md
+BEFORE_*.md
+ATTRIBUTION.md
+AUDIT_COMPLETION_SUMMARY.md
+ADAPTIVE_RESEARCH_DETAILS.md
+INDEX.md
+QUICK_*.md
+GAP_ANALYSIS_*.md
+EMBEDDING_ISSUES_FIXED.md
+ENHANCEMENT_STORY_EVENTS.md
+ARCHIVE_SETUP.md
+
+# Development guide folder
+docs/project-guides/

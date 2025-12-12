@@ -1,4 +1,12 @@
 import os
+import sys
+
+# Force UTF-8 encoding for Windows terminals
+os.environ['PYTHONIOENCODING'] = 'utf-8'
+if sys.stdout.encoding and sys.stdout.encoding.lower() not in ('utf-8', 'utf8'):
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
+
 from rich.console import Console
 from app.utils.constants import CONSOLE_WIDTH
 from prompt_toolkit.shortcuts import prompt
@@ -11,7 +19,6 @@ from typing import Any
 from app.utils.constants import THEME
 from app.utils.ui_messages import UI_MESSAGES
 import time
-import sys
 
 
 if os.name == "nt":
@@ -302,4 +309,13 @@ class AgentUI:
         )
 
 
-default_ui = AgentUI(Console(width=CONSOLE_WIDTH))
+# Initialize console with UTF-8 forced for Windows compatibility
+# legacy_windows=False allows unicode characters to render correctly on modern Windows terminals
+# force_terminal=True ensures terminal features are used even in non-interactive environments
+default_ui = AgentUI(Console(
+    width=CONSOLE_WIDTH,
+    legacy_windows=False,
+    force_terminal=True,
+    force_interactive=True,
+    force_jupyter=False,
+))

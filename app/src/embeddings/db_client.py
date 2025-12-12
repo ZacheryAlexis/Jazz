@@ -31,6 +31,7 @@ if not DB_PATH:
 
 class DataBaseClient:
     _instance = None
+    _initialized = False
 
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
@@ -40,6 +41,12 @@ class DataBaseClient:
     def __init__(
         self, embedding_function: Callable = None, scraper: Scraper = None
     ) -> None:
+        # Prevent re-initialization of singleton
+        if DataBaseClient._initialized:
+            return
+        
+        DataBaseClient._initialized = True
+        
         try:
             import chromadb
             from chromadb.config import Settings
@@ -153,17 +160,47 @@ class DataBaseClient:
 
     def store_document(self, file_path: str, collection_name: str) -> None:
         """Store document content and metadata in ChromaDB."""
+        default_ui.status_message(
+            title="DEBUG",
+            message=f"store_document called for: {file_path}",
+            style="info"
+        )
+        
         if self.already_stored(file_path, collection_name):
+            default_ui.status_message(
+                title="DEBUG",
+                message=f"File already stored, skipping",
+                style="info"
+            )
             return
 
+        default_ui.status_message(
+            title="DEBUG",
+            message=f"Starting scrape operation",
+            style="info"
+        )
         response = self.scraper.scrape(file_path)
+        
+        default_ui.status_message(
+            title="DEBUG",
+            message=f"Scrape completed, got {len(response.get('content', ''))} chars",
+            style="info"
+        )
+        
         content = response["content"]
         metadata = response["metadata"]
 
         chunks = [
             content[i : i + CHUNK_SIZE]
             for i in range(0, len(content), CHUNK_SIZE - CHUNK_OVERLAP)
+            if content[i : i + CHUNK_SIZE].strip()  # Filter empty chunks before embedding
         ]
+
+        default_ui.status_message(
+            title="DEBUG",
+            message=f"Created {len(chunks)} chunks",
+            style="info"
+        )
 
         if collection_name not in self.indexed_collections:
             self.indexed_collections[collection_name] = True  # default to indexed
@@ -176,15 +213,75 @@ class DataBaseClient:
         embeddings = []
         
         for i in range(0, len(chunks), BATCH_SIZE):
-            time.sleep(5)  # TODO: adjust delay based on rate limits
-            embeddings.extend(self.embedding_function(chunks[i : i + BATCH_SIZE]))
+            batch_chunks = chunks[i : i + BATCH_SIZE]
+            batch_num = i // BATCH_SIZE + 1
+            
+            default_ui.status_message(
+                title="DEBUG",
+                message=f"Embedding batch {batch_num} ({len(batch_chunks)} chunks)",
+                style="info"
+            )
+            
+            # Let OllamaEmbedder handle retries - don't catch exceptions here
+            # The embedder has proper retry logic with backoff
+            batch_embeddings = self.embedding_function(batch_chunks)
+            embeddings.extend(batch_embeddings)
 
-        collection.add(
-            documents=chunks,
-            metadatas=[metadata] * len(chunks),
-            embeddings=embeddings,
-            ids=[f"{metadata['hash']}_{i}" for i in range(len(chunks))],
+        default_ui.status_message(
+            title="DEBUG",
+            message=f"All embeddings generated ({len(embeddings)} total), writing to database",
+            style="info"
         )
+
+        # Write to database in smaller batches to avoid blocking
+        # ChromaDB can struggle with very large add() calls
+        write_batch_size = 50
+        for batch_idx in range(0, len(chunks), write_batch_size):
+            batch_end = min(batch_idx + write_batch_size, len(chunks))
+            batch_chunks = chunks[batch_idx:batch_end]
+            batch_embeddings = embeddings[batch_idx:batch_end]
+            batch_ids = [f"{metadata['hash']}_{i}" for i in range(batch_idx, batch_end)]
+            
+            try:
+                default_ui.status_message(
+                    title="DEBUG",
+                    message=f"Writing chunk batch {batch_idx//write_batch_size + 1} ({len(batch_chunks)} chunks)",
+                    style="info"
+                )
+                
+                collection.add(
+                    documents=batch_chunks,
+                    metadatas=[metadata] * len(batch_chunks),
+                    embeddings=batch_embeddings,
+                    ids=batch_ids,
+                )
+                
+                default_ui.status_message(
+                    title="DEBUG",
+                    message=f"Chunk batch {batch_idx//write_batch_size + 1} written successfully",
+                    style="info"
+                )
+            except Exception as e:
+                default_ui.error(f"Failed to write chunk batch: {e}")
+                raise
+
+        default_ui.status_message(
+            title="DEBUG",
+            message=f"Document stored successfully",
+            style="info"
+        )
+        
+        # Force ChromaDB to persist this document immediately
+        # This prevents rollback if subsequent documents fail
+        try:
+            self.db_client._client._persist_directory
+            default_ui.status_message(
+                title="DEBUG",
+                message=f"Document persisted to disk",
+                style="info"
+            )
+        except:
+            pass  # PersistentClient auto-persists
 
     def was_modified(self, file_path: str, collection_name: str) -> bool:
         """Check if the file has been modified by comparing hashes and modification dates."""
@@ -252,8 +349,19 @@ class DataBaseClient:
         directory_path = directory_path.resolve()
         directory_path = str(directory_path)
 
+        default_ui.status_message(
+            title="DEBUG",
+            message=f"Starting embedding for: {directory_path}",
+            style="info"
+        )
+
         # If it's a file, just process that single file
         if os.path.isfile(directory_path):
+            default_ui.status_message(
+                title="DEBUG",
+                message=f"Processing single file: {directory_path}",
+                style="info"
+            )
             try:
                 if self.was_modified(directory_path, collection_name):
                     self.store_document(directory_path, collection_name)
@@ -272,20 +380,52 @@ class DataBaseClient:
             )
             return
 
+        default_ui.status_message(
+            title="DEBUG",
+            message=f"Found directory, starting file walk",
+            style="info"
+        )
+
         for root, _, files in os.walk(directory_path):
+            default_ui.status_message(
+                title="DEBUG",
+                message=f"Processing folder: {root} ({len(files)} files)",
+                style="info"
+            )
             for file in files:
                 file_path = os.path.join(root, file)
+                default_ui.status_message(
+                    title="DEBUG",
+                    message=f"Checking file: {file}",
+                    style="info"
+                )
                 try:
                     if self.was_modified(file_path, collection_name):
+                        default_ui.status_message(
+                            title="DEBUG",
+                            message=f"Embedding: {file}",
+                            style="info"
+                        )
                         self.store_document(file_path, collection_name)
+                    else:
+                        default_ui.status_message(
+                            title="DEBUG",
+                            message=f"Skipped (not modified): {file}",
+                            style="info"
+                        )
 
                 except ScrapingFailedError:
                     default_ui.error(
                         UI_MESSAGES["errors"]["failed_scrape"].format(file_path)
                     )
+                    # Continue with next file instead of stopping
+                    continue
 
-                except:
-                    raise
+                except Exception as e:
+                    default_ui.error(f"Error processing {file}: {str(e)}")
+                    # Continue with next file instead of stopping entire process
+                    default_ui.warning(f"Skipping {file} and continuing with remaining files...")
+                    continue
 
         default_ui.status_message(
             title=UI_MESSAGES["titles"]["info"],

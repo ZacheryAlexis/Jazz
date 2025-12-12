@@ -4,10 +4,17 @@ CONSOLE_WIDTH = 100
 EXEC_TIMEOUT = 3600
 RECURSION_LIMIT = 100
 
-CHUNK_OVERLAP = 10
-CHUNK_SIZE = 50
+# Chunk size for RAG documents (in characters, typically ~4 chars per token)
+# Reduced to 1000 chars (~250 tokens) to prevent Ollama crashes on Windows
+CHUNK_SIZE = 1000
+# Overlap between chunks to maintain context
+CHUNK_OVERLAP = 100
+# Number of chunks to embed in one batch (Ollama batch size)
+# Reduced to 1 to prevent Ollama crashes - embed one at a time
+BATCH_SIZE = 1
+# Maximum search results for RAG queries (increased for better coverage)
 MAX_RESULTS = 20
-BATCH_SIZE = 30
+
 
 LAST_N_TURNS = 20
 
@@ -24,7 +31,7 @@ THEME = {
 }
 
 PROMPTS = {
-    "rag_results": "\n\nAnswer only from these documents. If irrelevant, say 'I don't know' unless user allows outside knowledge.\n",
+    "rag_results": "\n\nIMPORTANT: Prioritize the above documents when answering. Cite sources [Source X] when using document information. If the documents don't cover the question, you may use general knowledge but clearly indicate what comes from documents vs. general knowledge.",
     "continue": "Continue where you left off. Don't repeat anything already done.",
 }
 

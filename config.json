@@ -6,18 +6,18 @@
         "brainstormer": "ollama",
         "web_searcher": "ollama"
     },
-    "model": "qwen3:8b",
+    "model": "qwen2.5:14b",
     "models": {
-        "general": "qwen3:8b",
-        "code_gen": "qwen3:8b",
-        "brainstormer": "qwen3:8b",
-        "web_searcher": "qwen3:8b"
+        "general": "qwen2.5:14b",
+        "code_gen": "qwen2.5:14b",
+        "brainstormer": "qwen2.5:14b",
+        "web_searcher": "qwen2.5:14b"
     },
     "temperatures": {
-        "general": 0.7,
+        "general": 0.5,
         "code_gen": 0.3,
         "brainstormer": 0.9,
-        "web_searcher": 0.5
+        "web_searcher": 0.3
     },
     "system_prompts": {
         "general": null,
@@ -25,7 +25,7 @@
         "brainstormer": null,
         "web_searcher": null
     },
-    "embedding_provider": null,
-    "embedding_model": null,
+    "embedding_provider": "ollama",
+    "embedding_model": "nomic-embed-text:v1.5",
     "scraping_method": "simple"
 }
