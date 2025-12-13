@@ -41,9 +41,13 @@ config_path = os.path.join(BASE_DIR, "config.json")
 try:
     with open(config_path) as f:
         config = json.load(f)
-    # Set Ollama base URL if present in config
+    # Set Ollama URL env vars if present in config so downstream libs can connect
     if "ollama_host" in config:
-        os.environ["OLLAMA_BASE_URL"] = config["ollama_host"]
+        ollama_url = config["ollama_host"].rstrip("/")
+        # Set several common env var names used by different clients
+        os.environ["OLLAMA_HOST"] = ollama_url
+        os.environ["OLLAMA_BASE_URL"] = ollama_url
+        os.environ["OLLAMA_API_URL"] = ollama_url
 except FileNotFoundError:
     default_ui.error("Configuration file 'config.json' not found.")
     sys.exit(1)
