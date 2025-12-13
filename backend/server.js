@@ -401,8 +401,8 @@ const JAZZ_PROJECT_PATH = '/home/zach/Jazz';
 function callJazzCLI(message) {
   return new Promise((resolve, reject) => {
     try {
-      // Call via Python3 on Linux
-      const python = spawn('python3', [
+      // Call via Python virtual environment
+      const python = spawn(`${JAZZ_PROJECT_PATH}/venv/bin/python3`, [
         `${JAZZ_PROJECT_PATH}/main.py`,
         message
       ]);
