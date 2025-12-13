@@ -1,0 +1,7 @@
+
+> jazz-backend@1.0.0 start
+> node server.js
+
+✓ Jazz backend running on http://localhost:3000
+✓ MongoDB: mongodb://localhost:27017/jazz
+✓ MongoDB connected
