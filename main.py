@@ -41,6 +41,9 @@ config_path = os.path.join(BASE_DIR, "config.json")
 try:
     with open(config_path) as f:
         config = json.load(f)
+    # Set Ollama base URL if present in config
+    if "ollama_host" in config:
+        os.environ["OLLAMA_BASE_URL"] = config["ollama_host"]
 except FileNotFoundError:
     default_ui.error("Configuration file 'config.json' not found.")
     sys.exit(1)
