@@ -1,5 +1,6 @@
 {
     "provider": "ollama",
+    "ollama_host": "http://localhost:11434",
     "provider_per_model": {
         "general": "ollama",
         "code_gen": "ollama",
