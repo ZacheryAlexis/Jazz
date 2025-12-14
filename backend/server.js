@@ -428,11 +428,21 @@ function callJazzCLI(message) {
         }
       });
 
-      // Timeout after 30 seconds
-      setTimeout(() => {
-        python.kill();
+      // Timeout after 120 seconds (models can take longer to respond)
+      const cliTimeout = process.env.JAZZ_CLI_TIMEOUT_MS ? parseInt(process.env.JAZZ_CLI_TIMEOUT_MS) : 120000;
+      const timeoutHandle = setTimeout(() => {
+        try {
+          python.kill();
+        } catch (e) {
+          // ignore
+        }
         reject(new Error('Jazz CLI timeout'));
-      }, 30000);
+      }, cliTimeout);
+
+      // Clear timeout on successful close
+      python.on('close', () => {
+        clearTimeout(timeoutHandle);
+      });
 
     } catch (err) {
       reject(err);
