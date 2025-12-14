@@ -15,13 +15,17 @@
         <span *ngIf="message.type === 'user'" class="message-label">You</span>
         <span *ngIf="message.type === 'assistant'" class="message-label">Jazz</span>
         <p>{{ message.text }}</p>
+        <button *ngIf="message.fullResponse" class="btn-show-details" (click)="showFull(message)">Show details</button>
       </div>
     </div>
 
     <div *ngIf="loading" class="message assistant-message">
       <div class="message-content">
         <span class="message-label">Jazz</span>
-        <p class="loading-text">Thinking<span class="dots"><span>.</span><span>.</span><span>.</span></span></p>
+        <p class="loading-text">Thinking<span class="dots"><span>.</span><span>.</span><span>.</span></span>
+          <small class="elapsed"> {{ elapsedSeconds }}s</small>
+          <button class="btn-cancel" (click)="cancelRequest()">Cancel</button>
+        </p>
       </div>
     </div>
 
@@ -49,5 +53,21 @@
         {{ loading ? '⏳' : '📤' }}
       </button>
     </form>
+  </div>
+</div>
+
+<!-- Modal for full LLM response -->
+<div class="modal-backdrop" *ngIf="modalOpen" (click)="closeModal()">
+  <div class="modal" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Full response</h3>
+      <button class="modal-close" (click)="closeModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <pre class="modal-content">{{ modalContent }}</pre>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" (click)="closeModal()">Close</button>
+    </div>
   </div>
 </div>

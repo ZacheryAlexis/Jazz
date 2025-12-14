@@ -234,3 +234,53 @@
 .chat-messages::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.5);
 }
+
+/* Modal styles */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.modal {
+  background: #071027;
+  color: #e6f0ff;
+  width: 80%;
+  max-width: 820px;
+  border-radius: 10px;
+  box-shadow: 0 12px 60px rgba(2,6,23,0.8);
+  overflow: hidden;
+}
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+}
+.modal-body {
+  padding: 16px;
+  max-height: 60vh;
+  overflow: auto;
+}
+.modal-content {
+  white-space: pre-wrap;
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  line-height: 1.4;
+}
+.modal-footer {
+  padding: 10px 16px;
+  border-top: 1px solid rgba(255,255,255,0.02);
+  text-align: right;
+}
+.modal-close {
+  background: transparent;
+  border: none;
+  color: #e6f0ff;
+  font-size: 22px;
+  cursor: pointer;
+}

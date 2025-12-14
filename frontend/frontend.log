@@ -12,34 +12,82 @@ websocket connection issues.
 ✔ Building...
 Browser bundles     
 Initial chunk files  | Names            |  Raw size
-main.js              | main             |  43.37 kB | 
+main.js              | main             |  55.53 kB | 
 styles.css           | styles           |  95 bytes | 
 
-                     | Initial total    |  43.46 kB
+                     | Initial total    |  55.63 kB
 
 
 Server bundles      
 Initial chunk files  | Names            |  Raw size
-main.server.mjs      | main.server      |  44.63 kB | 
+main.server.mjs      | main.server      |  56.79 kB | 
 server.mjs           | server           |   1.81 kB | 
 polyfills.server.mjs | polyfills.server | 243 bytes | 
 
-Application bundle generation complete. [17.265 seconds] - 2025-12-14T01:49:33.350Z
+Application bundle generation complete. [7.754 seconds] - 2025-12-14T04:48:10.185Z
 
 Watch mode enabled. Watching for file changes...
 NOTE: Raw file sizes do not reflect development server per-request transformations.
   ➜  Local:   http://localhost:4200/
   ➜  Network: http://192.168.137.128:4200/
-ERROR TypeError: localStorage.getItem is not a function
-    at _ChatComponent.Component (/home/zach/Jazz/frontend/src/app/components/chat/chat.ts:37:41)
-    at callHookInternal (/home/zach/Jazz/frontend/.angular/cache/20.3.13/frontend/vite/deps_ssr/chunk-OU2B74ND.js:13533:10)
-    at callHook (/home/zach/Jazz/frontend/.angular/cache/20.3.13/frontend/vite/deps_ssr/chunk-OU2B74ND.js:13548:7)
-    at callHooks (/home/zach/Jazz/frontend/.angular/cache/20.3.13/frontend/vite/deps_ssr/chunk-OU2B74ND.js:13522:9)
-    at executeInitAndCheckHooks (/home/zach/Jazz/frontend/.angular/cache/20.3.13/frontend/vite/deps_ssr/chunk-OU2B74ND.js:13491:5)
-    at refreshView (/home/zach/Jazz/frontend/.angular/cache/20.3.13/frontend/vite/deps_ssr/chunk-OU2B74ND.js:19080:11)
-    at detectChangesInView (/home/zach/Jazz/frontend/.angular/cache/20.3.13/frontend/vite/deps_ssr/chunk-OU2B74ND.js:19240:5)
-    at detectChangesInViewIfAttached (/home/zach/Jazz/frontend/.angular/cache/20.3.13/frontend/vite/deps_ssr/chunk-OU2B74ND.js:19223:3)
-    at detectChangesInEmbeddedViews (/home/zach/Jazz/frontend/.angular/cache/20.3.13/frontend/vite/deps_ssr/chunk-OU2B74ND.js:19193:7)
-    at refreshView (/home/zach/Jazz/frontend/.angular/cache/20.3.13/frontend/vite/deps_ssr/chunk-OU2B74ND.js:19093:5)
-(node:32951) Warning: `--localstorage-file` was provided without a valid path
-(Use `node --trace-warnings ...` to show where the warning was created)
+❯ Changes detected. Rebuilding...
+✔ Changes detected. Rebuilding...
+Browser bundles    
+Initial chunk files | Names       | Raw size
+main.js             | main        | 55.65 kB | 
+
+
+Server bundles     
+Initial chunk files | Names       | Raw size
+main.server.mjs     | main.server | 56.91 kB | 
+
+Application bundle generation complete. [12.593 seconds] - 2025-12-14T04:56:21.206Z
+
+Page reload sent to client(s).
+❯ Changes detected. Rebuilding...
+✔ Changes detected. Rebuilding...
+Browser bundles    
+Initial chunk files | Names       | Raw size
+main.js             | main        | 58.61 kB | 
+
+
+Server bundles     
+Initial chunk files | Names       | Raw size
+main.server.mjs     | main.server | 59.87 kB | 
+
+Application bundle generation complete. [8.563 seconds] - 2025-12-14T04:56:30.200Z
+
+Component update sent to client(s).
+❯ Changes detected. Rebuilding...
+✔ Changes detected. Rebuilding...
+Browser bundles    
+Initial chunk files | Names       | Raw size
+main.js             | main        | 60.71 kB | 
+
+
+Server bundles     
+Initial chunk files | Names       | Raw size
+main.server.mjs     | main.server | 61.97 kB | 
+
+Application bundle generation complete. [0.819 seconds] - 2025-12-14T04:56:40.846Z
+
+Component update sent to client(s).
+❯ Changes detected. Rebuilding...
+✔ Changes detected. Rebuilding...
+Browser bundles     
+Initial chunk files  | Names            |  Raw size
+main.js              | main             |  60.71 kB | 
+styles.css           | styles           |  95 bytes | 
+
+                     | Initial total    |  60.80 kB
+
+
+Server bundles      
+Initial chunk files  | Names            |  Raw size
+main.server.mjs      | main.server      |  61.97 kB | 
+server.mjs           | server           |   1.81 kB | 
+polyfills.server.mjs | polyfills.server | 243 bytes | 
+
+Application bundle generation complete. [9.321 seconds] - 2025-12-14T05:12:16.675Z
+
+Component update sent to client(s).

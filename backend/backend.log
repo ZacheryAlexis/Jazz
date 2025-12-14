@@ -5,9 +5,15 @@
 ✓ Jazz backend running on http://localhost:3000
 ✓ MongoDB: mongodb://localhost:27017/jazz
 ✓ MongoDB connected
-Spawned Jazz CLI pid=33027
-[Jazz stdout] Consider using the pymupdf_layout package for a greatly improved page layout analysis.
-[Jazz stdout] 
-
-[Jazz stdout] {"response": "Hello! How can I assist you today? If you have a specific task or question in mind, feel free to let me know.", "model": "qwen2.5:14b", "provider": "ollama", "duration_ms": 17969, "warnings": []}
-
+SSE Spawned Jazz CLI pid=50781 for user=693e2f79aea5abda52e53e96
+SSE Spawned Jazz CLI pid=50871 for user=693e2f79aea5abda52e53e96
+SSE Spawned Jazz CLI pid=51741 for user=693e2f79aea5abda52e53e96
+SSE Spawned Jazz CLI pid=51841 for user=693e2f79aea5abda52e53e96
+SSE Spawned Jazz CLI pid=51902 for user=693e2f79aea5abda52e53e96
+SSE Spawned Jazz CLI pid=51937 for user=693e2f79aea5abda52e53e96
+SSE Spawned Jazz CLI pid=51968 for user=693e2f79aea5abda52e53e96
+SSE Spawned Jazz CLI pid=52066 for user=693e2f79aea5abda52e53e96
+SSE Spawned Jazz CLI pid=52139 for user=693e2f79aea5abda52e53e96
+SSE Spawned Jazz CLI pid=52195 for user=693e2f79aea5abda52e53e96
+SSE Spawned Jazz CLI pid=52229 for user=693e2f79aea5abda52e53e96
+SSE Spawned Jazz CLI pid=52259 for user=693e2f79aea5abda52e53e96

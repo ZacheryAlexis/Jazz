@@ -6,10 +6,14 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class AuthService {
-  // Build API URL from the host serving the frontend so requests target the VM backend
-  private apiUrl = `http://${window.location.hostname}:3000/api`;
+  // Default API URL (used on server) and updated in constructor when running in browser
+  private apiUrl = 'http://localhost:3000/api';
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {
+    if (typeof window !== 'undefined' && (window as any).location && (window as any).location.hostname) {
+      this.apiUrl = `http://${(window as any).location.hostname}:3000/api`;
+    }
+  }
 
   register(username: string, email: string, password: string): Observable<any> {
     return this.http.post(`${this.apiUrl}/auth/register`, {
