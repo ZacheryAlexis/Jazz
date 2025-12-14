@@ -19,6 +19,7 @@ from app.utils.ascii_art import ASCII_ART
 from app.src.core.base import BaseAgent
 from app.src.cli.flags import ArgsParser
 from app.src.core.ui import default_ui
+import json
 import textwrap
 import sys
 import os
@@ -239,7 +240,7 @@ class CLI:
         """Start the main chat interface."""
 
         try:
-            active_dir, initial_prompt, thread_id, once_flag = self._setup_environment(args)
+            active_dir, initial_prompt, thread_id, once_flag, json_flag = self._setup_environment(args)
 
             # If running in single-shot/non-interactive mode, send one prompt and exit
             if once_flag:
@@ -250,10 +251,15 @@ class CLI:
                     response = self.general_agent.ask_once(
                         initial_prompt, thread_id=thread_id, active_dir=active_dir, stream=self.stream
                     )
-                    # Print clear sentinel markers so callers can reliably extract the assistant reply
-                    print("JAZZ_SINGLE_SHOT_RESPONSE_START")
-                    print(response)
-                    print("JAZZ_SINGLE_SHOT_RESPONSE_END")
+                    if json_flag:
+                        out = {"response": response}
+                        # ensure bytes-friendly unicode
+                        print(json.dumps(out, ensure_ascii=False))
+                    else:
+                        # Print clear sentinel markers so callers can reliably extract the assistant reply
+                        print("JAZZ_SINGLE_SHOT_RESPONSE_START")
+                        print(response)
+                        print("JAZZ_SINGLE_SHOT_RESPONSE_END")
                     sys.exit(0)
                 except Exception as e:
                     self.ui.error(UI_MESSAGES["errors"]["unexpected_error"].format(e))
@@ -375,7 +381,7 @@ class CLI:
         except Exception as e:
             self.ui.error(UI_MESSAGES["errors"]["unexpected_error"].format(e))
 
-    def _setup_environment(self, user_args: list[str] = None) -> tuple[str, str, str, bool]:
+    def _setup_environment(self, user_args: list[str] = None) -> tuple[str, str, str, bool, bool]:
         """Setup working environment and configuration."""
 
         active_dir = None
@@ -383,6 +389,7 @@ class CLI:
         thread_id = None
 
         once_flag = False
+        json_flag = False
         parsed_args = None
         if user_args:
             parsed_args = ArgsParser.get_args(
@@ -390,11 +397,15 @@ class CLI:
                 user_args=list(user_args),
             )
 
-            # capture once flag early to avoid interactive prompts
+            # capture once/json flags early to avoid interactive prompts
             try:
                 once_flag = bool(parsed_args.once)
             except Exception:
                 once_flag = False
+            try:
+                json_flag = bool(parsed_args.json)
+            except Exception:
+                json_flag = False
 
             if parsed_args.i:
                 thread_id = parsed_args.i
@@ -427,7 +438,7 @@ class CLI:
         elif active_dir is None and once_flag:
             active_dir = os.getcwd()
 
-        return active_dir, initial_prompt, thread_id, once_flag
+        return active_dir, initial_prompt, thread_id, once_flag, json_flag
 
     def _setup_directory(self) -> str:
         """Setup working directory with user interaction."""

@@ -441,18 +441,31 @@ function callJazzCLI(message) {
 
       python.on('close', (code) => {
         if (code === 0) {
-          // If the CLI ran in single-shot mode it will print sentinel markers
-          // around the assistant response. Prefer extracting that block.
-          if (output && output.includes('JAZZ_SINGLE_SHOT_RESPONSE_START')) {
+          // First, try to parse output as JSON (preferred when CLI used --json)
+          if (output && output.trim()) {
             try {
-              const afterStart = output.split('JAZZ_SINGLE_SHOT_RESPONSE_START').pop();
-              const between = afterStart.split('JAZZ_SINGLE_SHOT_RESPONSE_END')[0];
-              resolve(between.trim() || 'No response');
-              return;
+              const parsed = JSON.parse(output.trim());
+              if (parsed && parsed.response) {
+                resolve(parsed.response.trim() || 'No response');
+                return;
+              }
             } catch (e) {
-              // fallthrough to return full output
+              // Not strict JSON; fallthrough to sentinel parsing
+            }
+
+            // Next, check sentinel markers for backward compatibility
+            if (output.includes('JAZZ_SINGLE_SHOT_RESPONSE_START')) {
+              try {
+                const afterStart = output.split('JAZZ_SINGLE_SHOT_RESPONSE_START').pop();
+                const between = afterStart.split('JAZZ_SINGLE_SHOT_RESPONSE_END')[0];
+                resolve(between.trim() || 'No response');
+                return;
+              } catch (e) {
+                // fallthrough to return full output
+              }
             }
           }
+
           resolve(output.trim() || 'No response');
         } else {
           reject(new Error(`Jazz CLI exited with code ${code}: ${errorOutput}`));

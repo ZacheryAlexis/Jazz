@@ -27,6 +27,11 @@ class ArgsParser(argparse.ArgumentParser):
             help="Run a single prompt and exit (non-interactive)",
         )
         self.add_argument(
+            "--json",
+            action="store_true",
+            help="When used with --once output a JSON object with the assistant response",
+        )
+        self.add_argument(
             "-i",
             help="Thread ID to continue of an existing old session. To view the current session ID, use the /id command within the chat.",
         )
