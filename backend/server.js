@@ -415,7 +415,8 @@ function callJazzCLI(message) {
           `${JAZZ_PROJECT_PATH}/main.py`,
           '-d',
           `${JAZZ_PROJECT_PATH}`,
-          '--once',
+            '--once',
+            '--json',
           '-p',
           message,
         ],
@@ -425,6 +426,7 @@ function callJazzCLI(message) {
             TERM: 'dumb',
             PYTHONUNBUFFERED: '1',
             NO_COLOR: '1',
+            PYTHONWARNINGS: 'ignore',
           },
         }
       );

@@ -5,3 +5,9 @@
 ✓ Jazz backend running on http://localhost:3000
 ✓ MongoDB: mongodb://localhost:27017/jazz
 ✓ MongoDB connected
+Spawned Jazz CLI pid=33027
+[Jazz stdout] Consider using the pymupdf_layout package for a greatly improved page layout analysis.
+[Jazz stdout] 
+
+[Jazz stdout] {"response": "Hello! How can I assist you today? If you have a specific task or question in mind, feel free to let me know.", "model": "qwen2.5:14b", "provider": "ollama", "duration_ms": 17969, "warnings": []}
+

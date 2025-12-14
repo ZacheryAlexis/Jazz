@@ -1,6 +1,6 @@
 {
     "provider": "ollama",
-    "ollama_host": "http://localhost:11434",
+    "ollama_host": "http://192.168.1.21:11434",
     "provider_per_model": {
         "general": "ollama",
         "code_gen": "ollama",
