@@ -403,13 +403,25 @@ function callJazzCLI(message) {
     try {
       // Call via Python virtual environment using the new CLI flag syntax (-p)
       // main.py now expects a prompt via -p/--p, so pass the flag before the message.
-      const python = spawn(`${JAZZ_PROJECT_PATH}/venv/bin/python3`, [
-        `${JAZZ_PROJECT_PATH}/main.py`,
-        '-d',
-        `${JAZZ_PROJECT_PATH}`,
-        '-p',
-        message,
-      ]);
+      const python = spawn(
+        `${JAZZ_PROJECT_PATH}/venv/bin/python3`,
+        [
+          `${JAZZ_PROJECT_PATH}/main.py`,
+          '-d',
+          `${JAZZ_PROJECT_PATH}`,
+          '--once',
+          '-p',
+          message,
+        ],
+        {
+          env: {
+            ...process.env,
+            TERM: 'dumb',
+            PYTHONUNBUFFERED: '1',
+            NO_COLOR: '1',
+          },
+        }
+      );
 
       let output = '';
       let errorOutput = '';
@@ -429,6 +441,18 @@ function callJazzCLI(message) {
 
       python.on('close', (code) => {
         if (code === 0) {
+          // If the CLI ran in single-shot mode it will print sentinel markers
+          // around the assistant response. Prefer extracting that block.
+          if (output && output.includes('JAZZ_SINGLE_SHOT_RESPONSE_START')) {
+            try {
+              const afterStart = output.split('JAZZ_SINGLE_SHOT_RESPONSE_START').pop();
+              const between = afterStart.split('JAZZ_SINGLE_SHOT_RESPONSE_END')[0];
+              resolve(between.trim() || 'No response');
+              return;
+            } catch (e) {
+              // fallthrough to return full output
+            }
+          }
           resolve(output.trim() || 'No response');
         } else {
           reject(new Error(`Jazz CLI exited with code ${code}: ${errorOutput}`));

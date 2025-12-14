@@ -1305,6 +1305,45 @@ class BaseAgent:
         """Handle tool message display."""
         self.ui.tool_output(message.name, message.content)
 
+    def ask_once(self, user_input: str, thread_id: str = None, active_dir: str = None, stream: bool = False) -> str:
+        """Run a single-turn prompt and return the assistant response as a string.
+
+        This is a lightweight single-shot path intended for non-interactive usage
+        (e.g., when main.py is spawned by a server). It performs one call to the
+        underlying agent stream, accumulates AI message content, and returns it.
+        """
+        # Prepare minimal configuration like start_chat does
+        self.configuration = {
+            "configurable": {"thread_id": thread_id or str(uuid.uuid4())},
+            "recursion_limit": RECURSION_LIMIT,
+        }
+
+        self._current_response = ""
+
+        try:
+            for chunk in self.agent.stream({"messages": [("human", user_input)]}, config=self.configuration):
+                # reuse existing display/accumulation logic
+                try:
+                    self._display_chunk(chunk)
+                except Exception:
+                    # Be conservative: if UI display fails, still try to extract raw content
+                    try:
+                        # attempt to extract direct content if chunk is dict-like
+                        if isinstance(chunk, dict):
+                            llm = chunk.get("llm", {})
+                            if "messages" in llm and llm["messages"]:
+                                msg = llm["messages"][-1]
+                                if hasattr(msg, "content"):
+                                    self._current_response += msg.content
+                    except Exception:
+                        pass
+
+            response = self._current_response.strip()
+            response = self._remove_thinking_block(response)
+            return response
+        except Exception as e:
+            raise
+
     def register_command(self, name: str, handler: Callable) -> None:
         self._custom_commands[name.lower()] = handler
 

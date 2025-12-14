@@ -22,6 +22,11 @@ class ArgsParser(argparse.ArgumentParser):
         self.add_argument("-d", help="Specify working directory path")
         self.add_argument("-p", help="Initial message/prompt for Ally")
         self.add_argument(
+            "--once",
+            action="store_true",
+            help="Run a single prompt and exit (non-interactive)",
+        )
+        self.add_argument(
             "-i",
             help="Thread ID to continue of an existing old session. To view the current session ID, use the /id command within the chat.",
         )
