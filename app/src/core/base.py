@@ -1305,7 +1305,7 @@ class BaseAgent:
         """Handle tool message display."""
         self.ui.tool_output(message.name, message.content)
 
-    def ask_once(self, user_input: str, thread_id: str = None, active_dir: str = None, stream: bool = False) -> str:
+    def ask_once(self, user_input: str, thread_id: str = None, active_dir: str = None, stream: bool = False, return_meta: bool = False):
         """Run a single-turn prompt and return the assistant response as a string.
 
         This is a lightweight single-shot path intended for non-interactive usage
@@ -1317,8 +1317,10 @@ class BaseAgent:
             "configurable": {"thread_id": thread_id or str(uuid.uuid4())},
             "recursion_limit": RECURSION_LIMIT,
         }
+        import time
 
         self._current_response = ""
+        start = time.perf_counter()
 
         try:
             for chunk in self.agent.stream({"messages": [("human", user_input)]}, config=self.configuration):
@@ -1338,10 +1340,23 @@ class BaseAgent:
                     except Exception:
                         pass
 
+            end = time.perf_counter()
+            duration_ms = int((end - start) * 1000)
+
             response = self._current_response.strip()
             response = self._remove_thinking_block(response)
+
+            meta = {
+                "model": getattr(self, "model_name", None),
+                "provider": getattr(self, "provider", None),
+                "duration_ms": duration_ms,
+                "warnings": [],
+            }
+
+            if return_meta:
+                return response, meta
             return response
-        except Exception as e:
+        except Exception:
             raise
 
     def register_command(self, name: str, handler: Callable) -> None:

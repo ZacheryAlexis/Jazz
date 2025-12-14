@@ -248,11 +248,21 @@ class CLI:
                     self.ui.error("No prompt provided for --once mode.")
                     sys.exit(2)
                 try:
-                    response = self.general_agent.ask_once(
-                        initial_prompt, thread_id=thread_id, active_dir=active_dir, stream=self.stream
+                    result = self.general_agent.ask_once(
+                        initial_prompt, thread_id=thread_id, active_dir=active_dir, stream=self.stream, return_meta=True
                     )
+                    if isinstance(result, tuple) or isinstance(result, list):
+                        response, meta = result[0], result[1]
+                    else:
+                        response, meta = result, {"model": None}
                     if json_flag:
-                        out = {"response": response}
+                        out = {
+                            "response": response,
+                            "model": meta.get("model"),
+                            "provider": meta.get("provider"),
+                            "duration_ms": meta.get("duration_ms"),
+                            "warnings": meta.get("warnings", []),
+                        }
                         # ensure bytes-friendly unicode
                         print(json.dumps(out, ensure_ascii=False))
                     else:

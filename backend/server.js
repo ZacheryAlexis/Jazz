@@ -59,6 +59,7 @@ const chatLogSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   userMessage: { type: String, required: true },
   assistantResponse: { type: String, required: true },
+  assistantMeta: { type: Object, default: {} },
   timestamp: { type: Date, default: Date.now }
 });
 
@@ -358,21 +359,26 @@ app.post('/api/chat', authenticateToken, async (req, res) => {
 
     // Call Jazz CLI to get response
     // This spawns a child process running: python main.py "<message>"
-    const jazzResponse = await callJazzCLI(message);
+    const jazzResult = await callJazzCLI(message);
+
+    const assistantText = jazzResult && jazzResult.response ? jazzResult.response : (typeof jazzResult === 'string' ? jazzResult : 'No response');
+    const assistantMeta = jazzResult && jazzResult.meta ? jazzResult.meta : {};
 
     // Store in database
     const chatLog = new ChatLog({
       userId: req.user.id,
       userMessage: message,
-      assistantResponse: jazzResponse
+      assistantResponse: assistantText,
+      assistantMeta: assistantMeta,
     });
     await chatLog.save();
 
     res.json({
       success: true,
       userMessage: message,
-      assistantResponse: jazzResponse,
-      timestamp: new Date()
+      assistantResponse: assistantText,
+      assistantMeta: assistantMeta,
+      timestamp: new Date(),
     });
   } catch (err) {
     console.error('Chat error:', err);
@@ -451,7 +457,7 @@ function callJazzCLI(message) {
                 const candidate = output.slice(firstBrace, lastBrace + 1).trim();
                 const parsed = JSON.parse(candidate);
                 if (parsed && parsed.response) {
-                  resolve(parsed.response.trim() || 'No response');
+                  resolve({ response: parsed.response.trim() || 'No response', meta: { model: parsed.model, provider: parsed.provider, duration_ms: parsed.duration_ms, warnings: parsed.warnings || [] } });
                   return;
                 }
               }
@@ -464,7 +470,7 @@ function callJazzCLI(message) {
               try {
                 const afterStart = output.split('JAZZ_SINGLE_SHOT_RESPONSE_START').pop();
                 const between = afterStart.split('JAZZ_SINGLE_SHOT_RESPONSE_END')[0];
-                resolve(between.trim() || 'No response');
+                resolve({ response: between.trim() || 'No response', meta: {} });
                 return;
               } catch (e) {
                 // fallthrough to return full output
@@ -472,7 +478,7 @@ function callJazzCLI(message) {
             }
           }
 
-          resolve(output.trim() || 'No response');
+          resolve({ response: output.trim() || 'No response', meta: {} });
         } else {
           reject(new Error(`Jazz CLI exited with code ${code}: ${errorOutput}`));
         }
