@@ -20,6 +20,9 @@ from app.utils.constants import THEME
 from app.utils.ui_messages import UI_MESSAGES
 import time
 
+# Quiet mode: when set (1/true) suppress interactive/banner output.
+QUIET = os.environ.get("JAZZ_QUIET", "0").lower() in ("1", "true", "yes")
+
 
 if os.name == "nt":
     import msvcrt
@@ -37,6 +40,8 @@ class AgentUI:
         return THEME.get(color_key, THEME["text"])
 
     def logo(self, ascii_art: str):
+        if QUIET:
+            return
         lines = ascii_art.split("\n")
         n = max(len(lines) - 1, 1)
         for i, line in enumerate(lines):
@@ -51,6 +56,8 @@ class AgentUI:
             self.console.print(text)
 
     def help(self, model_name: str = None):
+        if QUIET:
+            return
         help_content = UI_MESSAGES["help"]["content"].copy()
 
         if model_name:
@@ -69,6 +76,8 @@ class AgentUI:
         self.console.print(panel)
 
     def tool_call(self, tool_name: str, args: dict[str, Any]):
+        if QUIET:
+            return
         tool_name = UI_MESSAGES["tool"]["title"].format(tool_name)
         content_parts = [tool_name]
         if args:
@@ -99,6 +108,8 @@ class AgentUI:
         self.console.print(panel)
 
     def tool_output(self, tool_name: str, content: str):
+        if QUIET:
+            return
         tool_name = f"{tool_name}"
         if len(content) > 1000:
             content = content[:1000] + UI_MESSAGES["tool"]["truncated"]
@@ -118,6 +129,8 @@ class AgentUI:
         self.console.print(rendered_content)
 
     def ai_response(self, content: str):
+        if QUIET:
+            return
         try:
             rendered_content = Markdown(content)
         except:
@@ -132,6 +145,8 @@ class AgentUI:
         self.console.print(panel)
 
     def status_message(self, title: str, message: str, style: str = "primary"):
+        if QUIET:
+            return
         panel = Panel(
             message,
             title=f"[bold]{title}[/bold]",

@@ -6,6 +6,14 @@ Licensed under Apache License 2.0
 See LICENSE and ATTRIBUTION.md for details
 """
 
+import os, sys
+
+# If running non-interactively (single-shot), set QUIET early so imports
+# and agent/console initialization don't print banners. Look for flags in argv.
+ARGS = " ".join(sys.argv[1:])
+if "--once" in ARGS or "--json" in ARGS:
+    os.environ["JAZZ_QUIET"] = "1"
+
 from dotenv import load_dotenv
 load_dotenv()
 
