@@ -405,8 +405,10 @@ function callJazzCLI(message) {
       // main.py now expects a prompt via -p/--p, so pass the flag before the message.
       const python = spawn(`${JAZZ_PROJECT_PATH}/venv/bin/python3`, [
         `${JAZZ_PROJECT_PATH}/main.py`,
+        '-d',
+        `${JAZZ_PROJECT_PATH}`,
         '-p',
-        message
+        message,
       ]);
 
       let output = '';
