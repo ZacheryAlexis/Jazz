@@ -444,13 +444,19 @@ function callJazzCLI(message) {
           // First, try to parse output as JSON (preferred when CLI used --json)
           if (output && output.trim()) {
             try {
-              const parsed = JSON.parse(output.trim());
-              if (parsed && parsed.response) {
-                resolve(parsed.response.trim() || 'No response');
-                return;
+              // Attempt to locate a JSON object anywhere in the output
+              const firstBrace = output.indexOf('{');
+              const lastBrace = output.lastIndexOf('}');
+              if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+                const candidate = output.slice(firstBrace, lastBrace + 1).trim();
+                const parsed = JSON.parse(candidate);
+                if (parsed && parsed.response) {
+                  resolve(parsed.response.trim() || 'No response');
+                  return;
+                }
               }
             } catch (e) {
-              // Not strict JSON; fallthrough to sentinel parsing
+              // Not parseable JSON; fallthrough to sentinel parsing
             }
 
             // Next, check sentinel markers for backward compatibility
