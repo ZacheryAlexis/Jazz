@@ -414,12 +414,17 @@ function callJazzCLI(message) {
       let output = '';
       let errorOutput = '';
 
+      console.log(`Spawned Jazz CLI pid=${python.pid}`);
       python.stdout.on('data', (data) => {
-        output += data.toString();
+        const s = data.toString();
+        output += s;
+        console.log('[Jazz stdout]', s);
       });
 
       python.stderr.on('data', (data) => {
-        errorOutput += data.toString();
+        const s = data.toString();
+        errorOutput += s;
+        console.error('[Jazz stderr]', s);
       });
 
       python.on('close', (code) => {
