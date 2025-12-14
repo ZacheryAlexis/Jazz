@@ -27,8 +27,10 @@ export class ChatComponent implements OnInit {
   loading = false;
   error = '';
 
-  private apiUrl = 'http://localhost:3000/api/chat';
-  private historyUrl = 'http://localhost:3000/api/chat/history';
+  // Use the current host (where the frontend is served) to build backend URLs.
+  // This ensures API calls target the VM backend when accessing the UI from another machine.
+  private apiUrl = `http://${window.location.hostname}:3000/api/chat`;
+  private historyUrl = `http://${window.location.hostname}:3000/api/chat/history`;
 
   constructor(private http: HttpClient, private router: Router) {}
 

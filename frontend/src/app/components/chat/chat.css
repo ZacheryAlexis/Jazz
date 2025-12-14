@@ -4,18 +4,20 @@
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: radial-gradient(ellipse at 10% 10%, rgba(124,58,237,0.12) 0%, rgba(0,246,255,0.06) 30%, rgba(0,6,23,1) 60%), linear-gradient(180deg, #020617 0%, #050816 100%);
+  font-family: 'Orbitron', 'Share Tech Mono', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #e6f0ff;
 }
 
 .chat-header {
-  background: rgba(0, 0, 0, 0.1);
-  padding: 20px;
-  color: white;
+  background: linear-gradient(90deg, rgba(124,58,237,0.12), rgba(0,246,255,0.06));
+  padding: 18px 24px;
+  color: #e6f0ff;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 6px 30px rgba(0,0,0,0.6), 0 0 30px rgba(124,58,237,0.06) inset;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
 }
 
 .header-content h1 {
@@ -73,8 +75,9 @@
 }
 
 .user-message .message-content {
-  background: #667eea;
-  color: white;
+  background: linear-gradient(90deg, rgba(124,58,237,0.9), rgba(255,77,109,0.9));
+  color: #0b1020;
+  box-shadow: 0 6px 18px rgba(124,58,237,0.12);
 }
 
 .assistant-message {
@@ -82,15 +85,17 @@
 }
 
 .assistant-message .message-content {
-  background: white;
-  color: #333;
+  background: linear-gradient(90deg, rgba(0,246,255,0.08), rgba(124,58,237,0.04));
+  color: #e6f0ff;
+  border: 1px solid rgba(255,255,255,0.04);
 }
 
 .message-content {
-  max-width: 70%;
-  padding: 12px 16px;
-  border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  max-width: 72%;
+  padding: 14px 18px;
+  border-radius: 12px;
+  backdrop-filter: blur(6px) saturate(140%);
+  -webkit-backdrop-filter: blur(6px) saturate(140%);
 }
 
 .message-label {
@@ -191,18 +196,19 @@
 
 .btn-send {
   padding: 12px 20px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  background: linear-gradient(90deg, #7c3aed, #ff4d6d);
+  color: #f8fbff;
   border: none;
-  border-radius: 5px;
+  border-radius: 8px;
   cursor: pointer;
   font-size: 16px;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: transform 0.12s, box-shadow 0.12s;
+  box-shadow: 0 8px 30px rgba(124,58,237,0.16);
 }
 
 .btn-send:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 12px 40px rgba(124,58,237,0.22), 0 0 20px rgba(255,77,109,0.08);
 }
 
 .btn-send:disabled {

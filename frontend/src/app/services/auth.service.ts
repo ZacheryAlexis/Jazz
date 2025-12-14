@@ -6,7 +6,8 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'http://localhost:3000/api';
+  // Build API URL from the host serving the frontend so requests target the VM backend
+  private apiUrl = `http://${window.location.hostname}:3000/api`;
 
   constructor(private http: HttpClient) { }
 
