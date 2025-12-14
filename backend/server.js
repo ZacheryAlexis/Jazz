@@ -401,9 +401,11 @@ const JAZZ_PROJECT_PATH = '/home/zach/Jazz';
 function callJazzCLI(message) {
   return new Promise((resolve, reject) => {
     try {
-      // Call via Python virtual environment
+      // Call via Python virtual environment using the new CLI flag syntax (-p)
+      // main.py now expects a prompt via -p/--p, so pass the flag before the message.
       const python = spawn(`${JAZZ_PROJECT_PATH}/venv/bin/python3`, [
         `${JAZZ_PROJECT_PATH}/main.py`,
+        '-p',
         message
       ]);
 
