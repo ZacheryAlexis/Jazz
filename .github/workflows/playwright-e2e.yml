@@ -3,6 +3,10 @@ name: Playwright E2E
 on:
   workflow_dispatch:
   push:
+    # Run on main and any ci/* branches (including ci/playwright-e2e)
+    branches: [ main, 'ci/**' ]
+  pull_request:
+    # Run on PRs targeting main so E2E runs for merges and PR validation
     branches: [ main ]
 
 jobs:
