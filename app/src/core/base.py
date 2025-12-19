@@ -1305,7 +1305,7 @@ class BaseAgent:
         """Handle tool message display."""
         self.ui.tool_output(message.name, message.content)
 
-    def ask_once(self, user_input: str, thread_id: str = None, active_dir: str = None, stream: bool = False, return_meta: bool = False):
+    def ask_once(self, user_input: str, thread_id: str = None, active_dir: str = None, stream: bool = False, return_meta: bool = False, on_partial: callable = None):
         """Run a single-turn prompt and return the assistant response as a string.
 
         This is a lightweight single-shot path intended for non-interactive usage
@@ -1323,6 +1323,7 @@ class BaseAgent:
         start = time.perf_counter()
 
         try:
+            first_partial_sent = False
             for chunk in self.agent.stream({"messages": [("human", user_input)]}, config=self.configuration):
                 # reuse existing display/accumulation logic
                 try:
@@ -1339,6 +1340,19 @@ class BaseAgent:
                                     self._current_response += msg.content
                     except Exception:
                         pass
+
+                # If a caller provided an on_partial callback, call it once when we have the first substantive response chunk
+                try:
+                    if on_partial and not first_partial_sent and self._current_response and self._current_response.strip():
+                        # provide a lightweight meta with model/provider placeholders; duration will be filled at the end
+                        meta_partial = {"model": getattr(self, "model_name", None), "provider": getattr(self, "provider", None), "duration_ms": None}
+                        try:
+                            on_partial(self._current_response.strip(), meta_partial)
+                        except Exception:
+                            pass
+                        first_partial_sent = True
+                except Exception:
+                    pass
 
             end = time.perf_counter()
             duration_ms = int((end - start) * 1000)

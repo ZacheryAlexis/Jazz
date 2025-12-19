@@ -96,6 +96,50 @@ Notes & recommendations
     - `RATE_LIMIT_MAX_REQS` (default 30)
 
 If you want, I can add the automated smoke-test script into the `scripts/` folder and wire a small `npm run smoke` helper, or I can make the heuristic more conservative or add rate-limit adjustments now.
+ 
+Smoke-test script updated
+-------------------------
+- Location: `scripts/smoke_test.sh` (now in the repo)
+- What changed: increased per-query curl timeouts, added `--no-buffer` for streaming, and a deterministic fallback that queries `GET /api/chat/history` to capture the assistant reply if the SSE run did not emit a `data:` event within the timeout.
+- How to run locally (recommended):
+
+```bash
+cd /home/zach/Jazz
+./scripts/smoke_test.sh > /tmp/smoke_report_run.txt 2>&1 || true
+sed -n '1,240p' /tmp/smoke_report.txt
+```
+
+- If the smoke test shows `(none)` for `First data:` for a query, the script will attempt to fetch the most recent `assistantResponse` from `/api/chat/history` as a fallback. This makes automated runs more deterministic.
+
+Next steps I can take for you
+----------------------------
+- Run the smoke test now and attach the report (I can run it and paste results here).
+- If the fallback frequently returns stale history instead of the current query result, I can change the history lookup to match on `userMessage` or timestamp, or add a short server-side event that writes the most-recent assistantResponse to a temporary store keyed by request-id.
+
+I'll run the updated smoke test next and report the captured output.
+
+Per-request ephemeral status endpoint
+-------------------------------------
+I implemented a lightweight in-memory per-request store and a pollable endpoint to make automated tests deterministic:
+
+- Endpoint: `GET /api/stream_status?req_id=<id>` (requires Authorization Bearer JWT)
+- Behavior: the SSE handler emits an initial `event: req_id` with the `req_id` value. When a concise answer becomes available the backend writes `{ concise, meta }` into the ephemeral store under that `req_id` (TTL configurable via `EPHEMERAL_TTL_MS`, default 30000 ms). The poll endpoint will return `{ success: true, found: true, concise, meta, ts }` when available.
+
+Usage (client / smoke-test):
+
+1. Generate a `req_id` (the smoke script generates one automatically).
+2. Open SSE with `req_id` query param: `/api/chat/stream?token=<stream>&message=...&req_id=<req>`
+3. If SSE `data:` is not observed within the timeout, poll `GET /api/stream_status?req_id=<req>` until `found: true` or timeout.
+
+This avoids relying on `GET /api/chat/history` and prevents stale-history false positives in automated runs.
+ 
+Latest automated smoke run (summary)
+-----------------------------------
+- The updated smoke script was executed from `scripts/smoke_test.sh`.
+- Results: SSE emitted concise `data:` and `meta` events for the simple math, short-summary, and web-lookup tests. The web-lookup returned a `meta.full_response` with the captured web results.
+- For some queries (e.g. a live-score query in this run) the SSE stream did not emit a `data:` event before the script timeout; the script then used the history fallback. The fallback attempts a smart match on the recent `userMessage` but will fall back to the latest history entry if no match is found. This is deterministic but can return a stale assistantResponse if the backend did not produce an SSE `data:` event for the current request.
+
+Recommendation: for a robust automated smoke test, the backend should emit a short `summary` SSE event (or write a temporary per-request record) that the smoke script can query by request-id. I can implement a lightweight per-request ephemeral store (in-memory with TTL) that the backend writes the concise result to immediately when available; the smoke script would then poll that endpoint instead of relying on history.
 # 🔧 FIX: Jazz Backend Not Responding
 
 Run these commands on the VM to fix the issue:

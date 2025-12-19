@@ -119,4 +119,69 @@ def main():
     client.start_chat(*args)
 
 if __name__ == "__main__":
+    # Quick preflight: when running non-interactively with JSON output,
+    # attempt a very fast one-sentence summary (no web lookups). If it
+    # returns within a short timeout, print the JSON early so callers
+    # (or the backend) can receive a concise answer immediately.
+    try:
+        if "--once" in ARGS and "--json" in ARGS:
+            import threading
+
+            # extract prompt passed via -p if present
+            prompt = None
+            try:
+                if "-p" in sys.argv:
+                    pi = sys.argv.index("-p")
+                    if pi + 1 < len(sys.argv):
+                        prompt = sys.argv[pi + 1]
+                # backend may pass -p and the prompt as a single arg; else leave None
+            except Exception:
+                prompt = None
+
+            if prompt:
+                container = {"res": None, "meta": None}
+
+                def _worker():
+                    try:
+                        pre_prompt = f"Answer in one short sentence WITHOUT web lookups: {prompt}"
+                        # Try to temporarily avoid web research
+                        prev_force = getattr(client.general_agent, 'force_research', None)
+                        try:
+                            setattr(client.general_agent, 'force_research', False)
+                        except Exception:
+                            prev_force = None
+                        try:
+                            r = client.general_agent.ask_once(pre_prompt, thread_id=None, active_dir=None, stream=False, return_meta=True)
+                            if isinstance(r, (list, tuple)):
+                                container['res'], container['meta'] = r[0], r[1]
+                            else:
+                                container['res'], container['meta'] = r, {"model": getattr(client.general_agent, 'model_name', None)}
+                        finally:
+                            try:
+                                if prev_force is not None:
+                                    setattr(client.general_agent, 'force_research', prev_force)
+                            except Exception:
+                                pass
+                    except Exception:
+                        pass
+
+                t = threading.Thread(target=_worker, daemon=True)
+                t.start()
+                t.join(0.9)  # 900ms
+                if not t.is_alive() and container.get('res'):
+                    out = {
+                        "response": container['res'],
+                        "model": container['meta'].get('model') if container.get('meta') else getattr(client.general_agent, 'model_name', None),
+                        "provider": container['meta'].get('provider') if container.get('meta') else getattr(client.general_agent, 'provider', None),
+                        "duration_ms": container['meta'].get('duration_ms') if container.get('meta') else None,
+                        "warnings": container.get('meta', {}).get('warnings', []),
+                    }
+                    try:
+                        print(json.dumps(out, ensure_ascii=False))
+                        sys.stdout.flush()
+                    except Exception:
+                        pass
+    except Exception:
+        pass
+
     main()

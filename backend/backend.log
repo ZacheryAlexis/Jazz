@@ -5,15 +5,5 @@
 ✓ Jazz backend running on http://localhost:3000
 ✓ MongoDB: mongodb://localhost:27017/jazz
 ✓ MongoDB connected
-SSE Spawned Jazz CLI pid=50781 for user=693e2f79aea5abda52e53e96
-SSE Spawned Jazz CLI pid=50871 for user=693e2f79aea5abda52e53e96
-SSE Spawned Jazz CLI pid=51741 for user=693e2f79aea5abda52e53e96
-SSE Spawned Jazz CLI pid=51841 for user=693e2f79aea5abda52e53e96
-SSE Spawned Jazz CLI pid=51902 for user=693e2f79aea5abda52e53e96
-SSE Spawned Jazz CLI pid=51937 for user=693e2f79aea5abda52e53e96
-SSE Spawned Jazz CLI pid=51968 for user=693e2f79aea5abda52e53e96
-SSE Spawned Jazz CLI pid=52066 for user=693e2f79aea5abda52e53e96
-SSE Spawned Jazz CLI pid=52139 for user=693e2f79aea5abda52e53e96
-SSE Spawned Jazz CLI pid=52195 for user=693e2f79aea5abda52e53e96
-SSE Spawned Jazz CLI pid=52229 for user=693e2f79aea5abda52e53e96
-SSE Spawned Jazz CLI pid=52259 for user=693e2f79aea5abda52e53e96
+SSE Spawned Jazz CLI pid=76082 for user=693e2f79aea5abda52e53e96
+SSE Spawned Jazz CLI pid=76203 for user=693e0002edc38ca4d45beff4

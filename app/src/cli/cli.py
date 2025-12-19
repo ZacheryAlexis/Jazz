@@ -248,6 +248,66 @@ class CLI:
                     self.ui.error("No prompt provided for --once mode.")
                     sys.exit(2)
                 try:
+                    # If the caller requested JSON, attempt a very fast internal preflight summary
+                    # to produce a one-sentence JSON quickly. Run in a thread with a short timeout
+                    # so we don't block; if it returns, emit JSON immediately.
+                    def _run_preflight(prompt, timeout_ms=800):
+                        import threading
+                        container = {"res": None, "meta": None}
+
+                        def _worker():
+                            try:
+                                # Ask the agent to answer in one short sentence and avoid web lookups
+                                pre_prompt = f"Answer in one short sentence WITHOUT web lookups: {prompt}"
+                                # Temporarily prefer no web research
+                                prev_force = None
+                                try:
+                                    prev_force = getattr(self.general_agent, 'force_research', None)
+                                    setattr(self.general_agent, 'force_research', False)
+                                except Exception:
+                                    prev_force = None
+                                try:
+                                    r = self.general_agent.ask_once(pre_prompt, thread_id=thread_id, active_dir=active_dir, stream=False, return_meta=True)
+                                    if isinstance(r, (list, tuple)):
+                                        container['res'], container['meta'] = r[0], r[1]
+                                    else:
+                                        container['res'], container['meta'] = r, {"model": getattr(self.general_agent, 'model_name', None)}
+                                finally:
+                                    try:
+                                        if prev_force is not None:
+                                            setattr(self.general_agent, 'force_research', prev_force)
+                                    except Exception:
+                                        pass
+                            except Exception:
+                                pass
+
+                        t = threading.Thread(target=_worker, daemon=True)
+                        t.start()
+                        t.join(timeout_ms / 1000.0)
+                        if t.is_alive():
+                            return None, None
+                        return container['res'], container['meta']
+
+                    if json_flag:
+                        try:
+                            pre_res, pre_meta = _run_preflight(initial_prompt, timeout_ms=800)
+                            if pre_res:
+                                out = {
+                                    "response": pre_res,
+                                    "model": pre_meta.get("model") if pre_meta else getattr(self.general_agent, 'model_name', None),
+                                    "provider": pre_meta.get("provider") if pre_meta else getattr(self.general_agent, 'provider', None),
+                                    "duration_ms": pre_meta.get("duration_ms") if pre_meta else None,
+                                    "warnings": pre_meta.get("warnings", []) if pre_meta else [],
+                                }
+                                try:
+                                    print(json.dumps(out, ensure_ascii=False))
+                                    sys.stdout.flush()
+                                except Exception:
+                                    pass
+                        except Exception:
+                            pass
+
+                    # Proceed with the full single-shot ask (this will still emit JSON or sentinel later)
                     result = self.general_agent.ask_once(
                         initial_prompt, thread_id=thread_id, active_dir=active_dir, stream=self.stream, return_meta=True
                     )

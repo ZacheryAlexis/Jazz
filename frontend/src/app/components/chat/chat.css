@@ -45,6 +45,23 @@
   background: rgba(255, 255, 255, 0.3);
 }
 
+/* Match details button to site theme */
+.btn-show-details {
+  background: linear-gradient(90deg, rgba(255,255,255,0.06), rgba(124,58,237,0.06));
+  color: #e6f0ff;
+  border: 1px solid rgba(255,255,255,0.06);
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: transform 0.12s, box-shadow 0.12s, background 0.12s;
+}
+.btn-show-details:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 30px rgba(124,58,237,0.08);
+  background: linear-gradient(90deg, rgba(124,58,237,0.14), rgba(255,77,109,0.06));
+}
+
 .chat-messages {
   flex: 1;
   overflow-y: auto;

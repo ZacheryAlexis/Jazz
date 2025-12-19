@@ -1,7 +1,7 @@
 // Jazz MEAN Stack Frontend - Chat Component TypeScript
 // This component handles the chat interface and communication with the backend
 
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, NgZone, ChangeDetectorRef, ApplicationRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
@@ -41,7 +41,7 @@ export class ChatComponent implements OnInit {
   private apiUrl = 'http://localhost:3000/api/chat';
   private historyUrl = 'http://localhost:3000/api/chat/history';
 
-  constructor(private http: HttpClient, private router: Router) {
+  constructor(private http: HttpClient, private router: Router, private ngZone: NgZone, private cdr: ChangeDetectorRef, private appRef: ApplicationRef) {
     if (typeof window !== 'undefined' && (window as any).location && (window as any).location.hostname) {
       this.apiUrl = `http://${(window as any).location.hostname}:3000/api/chat`;
       this.historyUrl = `http://${(window as any).location.hostname}:3000/api/chat/history`;
@@ -151,6 +151,27 @@ export class ChatComponent implements OnInit {
     }
 
     // Start streaming via SSE
+    // Quick client-side short-circuit for trivial arithmetic to ensure <3s latency
+    const quickCalcMatch = messageToSend.trim().replace(/[\?\!\.]+$/,'').match(/^(?:what\s+is\s+)?([-+*/() 0-9\.\s]+)$/i);
+    if (quickCalcMatch) {
+      const expr = quickCalcMatch[1].replace(/\s+/g, '');
+      if (/^[0-9\+\-\*\/\.\(\)]+$/.test(expr)) {
+        try {
+          // Evaluate safely in a Function context after validation
+          // eslint-disable-next-line no-new-func
+          const result = Function(`'use strict'; return (${expr});`)();
+          if (typeof result === 'number' && Number.isFinite(result)) {
+            this.messages.push({ type: 'assistant', text: String(result), timestamp: new Date() });
+            this.loading = false;
+            if (this.elapsedInterval) { clearInterval(this.elapsedInterval); this.elapsedInterval = null; }
+            return;
+          }
+        } catch (e) {
+          // fall through to streaming path
+        }
+      }
+    }
+
     this.elapsedSeconds = 0;
     this.elapsedInterval = setInterval(() => this.elapsedSeconds++, 1000);
 
@@ -179,30 +200,46 @@ export class ChatComponent implements OnInit {
       // Handle primary concise data (first data event contains parsed response)
       es.onmessage = (ev: MessageEvent) => {
         const chunk = ev.data;
-        assistantMsg.text = (assistantMsg.text + (assistantMsg.text ? ' ' : '') + chunk).trim();
-        // As soon as we receive the first concise answer chunk, stop showing the global loading UI
-        if (this.loading) {
-          this.loading = false;
-          if (this.elapsedInterval) { clearInterval(this.elapsedInterval); this.elapsedInterval = null; }
-          if (this.pollIntervalId) { clearInterval(this.pollIntervalId); this.pollIntervalId = null; }
-          // Keep the EventSource open to receive `detail` events, but UI is now showing the answer
-        }
+        console.debug('[SSE] onmessage received:', chunk);
+        this.ngZone.run(() => {
+          // If current text is empty or a placeholder, replace it entirely with the concise answer
+          const cur = (assistantMsg.text || '').toLowerCase();
+          const placeholderRegex = /working on a concise answer|working on/i;
+          if (!cur || placeholderRegex.test(cur)) {
+            assistantMsg.text = chunk.trim();
+          } else {
+            assistantMsg.text = (assistantMsg.text + (assistantMsg.text ? ' ' : '') + chunk).trim();
+          }
+
+          // As soon as we receive the first concise answer chunk, stop showing the global loading UI
+          if (this.loading) {
+            this.loading = false;
+            if (this.elapsedInterval) { clearInterval(this.elapsedInterval); this.elapsedInterval = null; }
+            if (this.pollIntervalId) { clearInterval(this.pollIntervalId); this.pollIntervalId = null; }
+          }
+          // Force change detection and refresh messages reference so view updates immediately
+          try { this.messages = [...this.messages]; this.cdr.detectChanges(); this.appRef.tick(); } catch (e) { console.warn('detect change failed', e); }
+        });
       };
 
-      // Meta event contains model/duration info
+      // Meta event contains metadata and potentially full_response; do NOT display model/provider
       es.addEventListener('meta', (ev: any) => {
         try {
           const meta = JSON.parse(ev.data);
-          // Append a short meta suffix to the assistant message (optional)
-            if (meta && (meta.model || meta.duration_ms || meta.full_response)) {
-            const model = meta.model ? `${meta.model}` : '';
-            const dur = meta.duration_ms ? `${Math.round(meta.duration_ms)}ms` : '';
-            const suffix = ` (${[model, dur].filter(Boolean).join(' • ')})`;
-            assistantMsg.text = (assistantMsg.text + suffix).trim();
-            if (meta.full_response) {
+          this.ngZone.run(() => {
+            // Do not display model/provider in the visible assistant text. Attach full_response to modal.
+            if (meta && meta.full_response) {
               assistantMsg.fullResponse = meta.full_response;
             }
-          }
+            // Stop loading UI on any meta arrival so Cancel button is hidden
+            if (this.loading) {
+              this.loading = false;
+              if (this.elapsedInterval) { clearInterval(this.elapsedInterval); this.elapsedInterval = null; }
+              if (this.pollIntervalId) { clearInterval(this.pollIntervalId); this.pollIntervalId = null; }
+            }
+            // Ensure view updates immediately
+            try { this.messages = [...this.messages]; this.cdr.detectChanges(); } catch (e) {}
+          });
         } catch (e) {
           console.log('Invalid meta from stream', ev.data);
         }
@@ -210,7 +247,10 @@ export class ChatComponent implements OnInit {
 
       // Detail events are further streaming output after the concise answer
       es.addEventListener('detail', (ev: any) => {
-        assistantMsg.text = (assistantMsg.text + ' ' + ev.data).trim();
+        this.ngZone.run(() => {
+          assistantMsg.text = (assistantMsg.text + ' ' + ev.data).trim();
+          try { this.messages = [...this.messages]; this.cdr.detectChanges(); } catch (e) {}
+        });
       });
 
       es.addEventListener('stderr', (ev: any) => {
@@ -221,10 +261,13 @@ export class ChatComponent implements OnInit {
         try { const info = JSON.parse(ev.data); console.log('Stream done', info); } catch(e){}
         // Close and cleanup
         try { es.close(); } catch (e) {}
-        this.currentEventSource = null;
-        this.loading = false;
-        if (this.elapsedInterval) { clearInterval(this.elapsedInterval); this.elapsedInterval = null; }
-        if (this.pollIntervalId) { clearInterval(this.pollIntervalId); this.pollIntervalId = null; }
+        this.ngZone.run(() => {
+          this.currentEventSource = null;
+          this.loading = false;
+          if (this.elapsedInterval) { clearInterval(this.elapsedInterval); this.elapsedInterval = null; }
+          if (this.pollIntervalId) { clearInterval(this.pollIntervalId); this.pollIntervalId = null; }
+          try { this.messages = [...this.messages]; this.cdr.detectChanges(); } catch (e) {}
+        });
       });
 
       // Fallback polling to pick up DB-saved response if needed
