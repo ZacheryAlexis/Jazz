@@ -1442,7 +1442,12 @@ app.use((err, req, res, next) => {
 // ============ START SERVER ============
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`✓ Jazz backend running on http://localhost:${PORT}`);
-  console.log(`✓ MongoDB: ${MONGODB_URI}`);
-});
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`✓ Jazz backend running on http://localhost:${PORT}`);
+    console.log(`✓ MongoDB: ${MONGODB_URI}`);
+  });
+} else {
+  // When required as a module (e.g., during tests), export the app without listening
+  module.exports = app;
+}

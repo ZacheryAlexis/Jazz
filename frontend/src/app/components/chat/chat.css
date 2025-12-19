@@ -20,6 +20,17 @@
   border-bottom: 1px solid rgba(255,255,255,0.04);
 }
 
+.mfa-banner {
+  background: linear-gradient(90deg, rgba(255,235,59,0.06), rgba(124,58,237,0.04));
+  border-bottom: 1px solid rgba(255,255,255,0.02);
+  padding: 10px 20px;
+}
+.mfa-banner-inner { display:flex; justify-content:space-between; align-items:center; gap:12px; }
+.mfa-text { color: #fff; font-weight:600; }
+.mfa-actions { display:flex; gap:8px; }
+.btn-link { background: transparent; color: #9ae6b4; border: none; cursor: pointer; font-weight:700; }
+.btn-dismiss { background: rgba(255,255,255,0.04); border: none; color: #ddd; padding:6px 10px; border-radius:6px; cursor:pointer; }
+
 .header-content h1 {
   margin: 0;
   font-size: 28px;
@@ -44,6 +55,18 @@
 .btn-logout:hover {
   background: rgba(255, 255, 255, 0.3);
 }
+
+.header-actions { display:flex; gap:10px; align-items:center; }
+
+.btn-account {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.08);
+  color: #e6f0ff;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.btn-account:hover { background: rgba(255,255,255,0.04); }
 
 /* Match details button to site theme */
 .btn-show-details {

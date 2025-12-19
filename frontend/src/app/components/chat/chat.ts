@@ -25,6 +25,7 @@ export class ChatComponent implements OnInit {
   messages: ChatMessage[] = [];
   userMessage = '';
   username = '';
+  showMfaBanner = false;
   loading = false;
   error = '';
   elapsedSeconds = 0;
@@ -45,6 +46,15 @@ export class ChatComponent implements OnInit {
     if (typeof window !== 'undefined' && (window as any).location && (window as any).location.hostname) {
       this.apiUrl = `http://${(window as any).location.hostname}:3000/api/chat`;
       this.historyUrl = `http://${(window as any).location.hostname}:3000/api/chat/history`;
+    }
+  }
+
+  navigateToAccount() {
+    // Navigate to account settings page
+    try {
+      this.router.navigate(['/account']);
+    } catch (e) {
+      console.warn('Navigation to account failed', e);
     }
   }
 
@@ -78,7 +88,20 @@ export class ChatComponent implements OnInit {
     // Load chat history (only in browser/runtime)
     if (typeof window !== 'undefined' && token) {
       this.loadChatHistory();
+      // Show MFA banner if mfaEnabled flag is not set or false
+      try {
+        const mfa = localStorage.getItem('mfaEnabled');
+        const dismissed = localStorage.getItem('mfaBannerDismissed');
+        if ((mfa === null || mfa === '0') && dismissed !== '1') {
+          this.showMfaBanner = true;
+        }
+      } catch (e) { this.showMfaBanner = false; }
     }
+  }
+
+  dismissMfaBanner() {
+    try { localStorage.setItem('mfaBannerDismissed', '1'); } catch (e) {}
+    this.showMfaBanner = false;
   }
 
   loadChatHistory() {

@@ -6,7 +6,21 @@
       <h1>🎷 Jazz Chat</h1>
       <p class="user-info">Welcome, {{ username }}</p>
     </div>
-    <button (click)="logout()" class="btn-logout">Sign Out</button>
+    <div class="header-actions">
+      <button (click)="navigateToAccount()" class="btn-account">Account</button>
+      <button (click)="logout()" class="btn-logout">Sign Out</button>
+    </div>
+  </div>
+
+  <!-- MFA banner prompting setup when user hasn't enabled MFA -->
+  <div *ngIf="showMfaBanner" class="mfa-banner">
+    <div class="mfa-banner-inner">
+      <div class="mfa-text">For better security, enable Two-Factor Authentication (MFA) on your account.</div>
+      <div class="mfa-actions">
+        <button class="btn-link" (click)="navigateToAccount()">Set up now</button>
+        <button class="btn-dismiss" (click)="dismissMfaBanner()">Dismiss</button>
+      </div>
+    </div>
   </div>
 
   <div class="chat-messages">

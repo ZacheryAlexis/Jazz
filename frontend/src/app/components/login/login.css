@@ -121,3 +121,33 @@
 .toggle-mode a:hover {
   text-decoration: underline;
 }
+
+.mfa-box {
+  margin-top: 18px;
+  padding: 12px;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.03);
+}
+
+.mfa-box input {
+  width: 100%;
+  padding: 10px;
+  margin: 8px 0;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+}
+
+.mfa-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-cancel {
+  padding: 10px 14px;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.06);
+  color: #ccc;
+  border-radius: 8px;
+  cursor: pointer;
+}

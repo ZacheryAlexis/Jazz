@@ -1,0 +1,18 @@
+<div class="account-container">
+  <h2>Account Settings</h2>
+
+  <div class="mfa-setup">
+    <p>{{ message }}</p>
+    <button class="btn-submit" (click)="setupMfa()" [disabled]="loading">Setup MFA</button>
+
+    <div *ngIf="qrDataUrl" class="qr">
+      <p>Scan this QR code with your authenticator app:</p>
+      <img [src]="qrDataUrl" alt="MFA QR Code" />
+      <p class="secret">Secret: {{ secret }}</p>
+      <div class="verify">
+        <input #tokenInput type="text" placeholder="Enter code from app" maxlength="8" />
+        <button (click)="verifyMfa(tokenInput)" class="btn-submit">Verify & Enable</button>
+      </div>
+    </div>
+  </div>
+</div>

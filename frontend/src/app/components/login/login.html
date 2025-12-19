@@ -57,6 +57,16 @@
       </button>
     </form>
 
+    <!-- MFA Token input shown when server requests MFA -->
+    <div *ngIf="mfaStage" class="mfa-box">
+      <p>Please enter the 6-digit code from your authenticator app.</p>
+      <input type="text" maxlength="8" [(ngModel)]="mfaToken" name="mfaToken" placeholder="123456" [disabled]="loading" />
+      <div class="mfa-actions">
+        <button class="btn-submit" (click)="onMfaSubmit()" [disabled]="loading">Verify</button>
+        <button class="btn-cancel" (click)="mfaStage=false; mfaToken=''; mfaUserId=null;" [disabled]="loading">Cancel</button>
+      </div>
+    </div>
+
     <div class="toggle-mode">
       <p>
         {{ isRegistering ? 'Already have an account?' : 'Don\'t have an account?' }}

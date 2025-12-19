@@ -30,6 +30,24 @@ export class AuthService {
     });
   }
 
+  // Perform MFA login using the temporary userId returned when MFA is required
+  mfaLogin(userId: string, token: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/mfa/login`, {
+      userId,
+      token
+    });
+  }
+
+  // (Optional) Setup MFA for the current authenticated user
+  mfaSetup(): Observable<any> {
+    return this.http.post(`${this.apiUrl}/mfa/setup`, {}, { headers: { 'Authorization': `Bearer ${this.getToken()}` } });
+  }
+
+  // (Optional) Verify MFA setup token and enable MFA
+  mfaVerify(token: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/mfa/verify`, { token }, { headers: { 'Authorization': `Bearer ${this.getToken()}` } });
+  }
+
   getToken(): string | null {
     return localStorage.getItem('token');
   }

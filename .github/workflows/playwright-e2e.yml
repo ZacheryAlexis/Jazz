@@ -1,0 +1,63 @@
+name: Playwright E2E
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    services:
+      mongo:
+        image: mongo:6.0
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongo --eval 'db.adminCommand(\"ping\")' || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install backend deps
+        working-directory: backend
+        run: npm ci
+
+      - name: Build frontend
+        working-directory: frontend
+        run: |
+          npm ci
+          npm run build
+
+      - name: Start backend
+        working-directory: backend
+        env:
+          MONGODB_URI: mongodb://localhost:27017/jazz
+        run: |
+          nohup npm run start > backend.log 2>&1 &
+          # Wait until backend is healthy
+          for i in {1..30}; do 
+            curl -s http://localhost:3000/api/health && break || sleep 1; 
+          done
+
+      - name: Serve frontend
+        run: |
+          npx http-server frontend/dist/frontend -p 4200 >/dev/null 2>&1 &
+          for i in {1..30}; do curl -s http://localhost:4200 && break || sleep 1; done
+
+      - name: Install Playwright browsers
+        working-directory: frontend
+        run: npx playwright install --with-deps
+
+      - name: Run Playwright tests
+        working-directory: frontend
+        run: npx playwright test --reporter=list
